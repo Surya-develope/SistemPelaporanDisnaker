@@ -5,15 +5,11 @@
     <title>SIP NAKER | Disnaker Pekanbaru</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 
     <style>
-        body {
-            background-color: #f1f5f9;
-            font-family: 'Segoe UI', sans-serif;
-        }
+        body { background-color: #f1f5f9; font-family: 'Segoe UI', sans-serif; }
 
         .sidebar {
             width: 270px;
@@ -34,28 +30,19 @@
             font-size: 14px;
         }
 
-        .sidebar a:hover {
+        .sidebar a:hover,
+        .sidebar a.active {
             background-color: rgba(255,255,255,0.1);
             color: white;
             padding-left: 30px;
         }
 
-        .sidebar .submenu a {
-            font-size: 13px;
-            padding-left: 45px;
+        .submenu a { 
+            font-size: 13px; 
+            padding-left: 55px; 
         }
 
-        .logo-img {
-            background: white;
-            padding: 10px;
-            border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-        }
-
-        .content {
-            margin-left: 270px;
-            padding: 30px;
-        }
+        .content { margin-left: 270px; padding: 30px; }
 
         .navbar-custom {
             background: white;
@@ -73,62 +60,120 @@
             transform: translateY(-5px);
             box-shadow: 0 15px 25px rgba(0,0,0,0.1);
         }
-
-        hr { opacity: 0.2; }
     </style>
 </head>
 <body>
 
 @php
-$role = 'admin';
+$role = session('role');
 @endphp
 
-<!-- SIDEBAR -->
 <div class="sidebar">
 
     <div class="text-center mb-4">
-        <img src="{{ asset('logo-pekanbaru.png') }}" width="80" class="logo-img mb-3">
+        <img src="{{ asset('logo-pekanbaru.png') }}" width="80" class="mb-3 bg-white p-2 rounded">
         <h6 class="fw-bold text-white mb-0">SIP NAKER</h6>
         <small class="text-light">Disnaker Kota Pekanbaru</small>
     </div>
 
     <hr class="text-secondary">
 
-    <a href="/"><i class="fa fa-chart-line me-2"></i> Dashboard</a>
+    {{-- DASHBOARD --}}
+    <a href="/" class="{{ request()->is('/') ? 'active' : '' }}">
+        <i class="fa fa-chart-line me-2"></i> Dashboard
+    </a>
 
-    <!-- PENTA -->
-    <a data-bs-toggle="collapse" href="#pentaMenu">
+    {{-- ================= PENTA ================= --}}
+    @if(in_array($role, ['admin','penta']))
+    <a data-bs-toggle="collapse" href="#pentaMenu" role="button"
+       aria-expanded="{{ request()->is('penta/*') ? 'true' : 'false' }}"
+       class="{{ request()->is('penta/*') ? 'active' : '' }}">
         <i class="fa fa-users me-2"></i> Bidang Penta
     </a>
-    <div class="collapse submenu" id="pentaMenu">
-        <a href="/penta/tenaga-kerja">Jumlah Tenaga Kerja</a>
-        <a href="#">Lowongan Kerja</a>
-        <a href="#">Rekap Pendaftaran</a>
-    </div>
 
-    <!-- PHI -->
-    <a data-bs-toggle="collapse" href="#phiMenu">
+    <div class="collapse {{ request()->is('penta/*') ? 'show' : '' }}" id="pentaMenu">
+        <div class="submenu">
+            <a href="/penta/lowongan"
+               class="{{ request()->is('penta/lowongan') ? 'active' : '' }}">
+                <i class="fa fa-briefcase me-2"></i> Lowongan
+            </a>
+
+            <a href="/penta/tenaga-kerja"
+               class="{{ request()->is('penta/tenaga-kerja') ? 'active' : '' }}">
+                <i class="fa fa-user-check me-2"></i> Tenaga Kerja
+            </a>
+
+            <a href="/penta/rekap"
+               class="{{ request()->is('penta/rekap') ? 'active' : '' }}">
+                <i class="fa fa-chart-pie me-2"></i> Rekap Pendaftaran
+            </a>
+        </div>
+    </div>
+    @endif
+
+    {{-- ================= PHI ================= --}}
+    @if(in_array($role, ['admin','phi']))
+    <a data-bs-toggle="collapse" href="#phiMenu" role="button"
+       aria-expanded="{{ request()->is('phi/*') ? 'true' : 'false' }}"
+       class="{{ request()->is('phi/*') ? 'active' : '' }}">
         <i class="fa fa-file-contract me-2"></i> Bidang PHI
     </a>
-    <div class="collapse submenu" id="phiMenu">
-        <a href="/phi/pkwt">Rekap PKWT</a>
-        <a href="#">Rekap PP</a>
-        <a href="#">Rekap Pengaduan</a>
-    </div>
 
-    <!-- LATTAS -->
-    <a data-bs-toggle="collapse" href="#lattasMenu">
-        <i class="fa fa-graduation-cap me-2"></i> Bidang Lattas
-    </a>
-    <div class="collapse submenu" id="lattasMenu">
-        <a href="/lattas/pelatihan">Rekap Pelatihan</a>
-        <a href="#">LPK Aktif</a>
-        <a href="#">LPK Non Aktif</a>
+    <div class="collapse {{ request()->is('phi/*') ? 'show' : '' }}" id="phiMenu">
+        <div class="submenu">
+
+            <a href="/phi/pkwt"
+               class="{{ request()->is('phi/pkwt') ? 'active' : '' }}">
+                <i class="fa fa-file-signature me-2"></i> Rekap PKWT
+            </a>
+
+            <a href="/phi/pengaduan"
+               class="{{ request()->is('phi/pengaduan') ? 'active' : '' }}">
+                <i class="fa fa-gavel me-2"></i> Rekap Pengaduan Kasus
+            </a>
+
+            <a href="/phi/peraturan"
+               class="{{ request()->is('phi/peraturan') ? 'active' : '' }}">
+                <i class="fa fa-book me-2"></i> Rekap Peraturan Perusahaan
+            </a>
+
+        </div>
     </div>
+    @endif
+
+    {{-- ================= LATTAS ================= --}}
+    {{-- ================= LATTAS ================= --}}
+@if(in_array($role, ['admin','lattas']))
+<a data-bs-toggle="collapse" href="#lattasMenu" role="button"
+   aria-expanded="{{ request()->is('lattas/*') ? 'true' : 'false' }}"
+   class="{{ request()->is('lattas/*') ? 'active' : '' }}">
+    <i class="fa fa-graduation-cap me-2"></i> Bidang Lattas
+</a>
+
+<div class="collapse {{ request()->is('lattas/*') ? 'show' : '' }}" id="lattasMenu">
+    <div class="submenu">
+
+        <a href="/lattas/pelatihan"
+           class="{{ request()->is('lattas/pelatihan') ? 'active' : '' }}">
+            <i class="fa fa-chalkboard-teacher me-2"></i> Data Pelatihan
+        </a>
+
+        <a href="/lattas/lpk-aktif"
+           class="{{ request()->is('lattas/lpk-aktif') ? 'active' : '' }}">
+            <i class="fa fa-building me-2"></i> Rekap LPK Aktif
+        </a>
+
+        <a href="/lattas/lpk-nonaktif"
+           class="{{ request()->is('lattas/lpk-nonaktif') ? 'active' : '' }}">
+            <i class="fa fa-building-circle-xmark me-2"></i> Rekap LPK Non Aktif
+        </a>
+
+    </div>
+</div>
+@endif
 
 </div>
 
-<!-- CONTENT -->
 <div class="content">
 
     <div class="navbar-custom shadow-sm d-flex justify-content-between align-items-center mb-4">
@@ -137,8 +182,12 @@ $role = 'admin';
             <small class="text-muted" id="tanggal"></small>
         </div>
         <div>
-            <span class="badge bg-primary px-3 py-2 me-2">{{ strtoupper($role) }}</span>
-            <span class="badge bg-dark px-3 py-2" id="jam"></span>
+            @if($role)
+                <span class="badge bg-primary px-3 py-2 me-2">
+                    {{ strtoupper($role) }}
+                </span>
+            @endif
+            <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
         </div>
     </div>
 
@@ -146,29 +195,21 @@ $role = 'admin';
 
 </div>
 
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Script Jam & Tanggal -->
 <script>
 function updateClock() {
     const now = new Date();
-    const jam = now.toLocaleTimeString('id-ID');
     const tanggal = now.toLocaleDateString('id-ID', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
         day: 'numeric'
     });
-
-    document.getElementById('jam').innerText = jam;
     document.getElementById('tanggal').innerText = tanggal;
 }
-setInterval(updateClock, 1000);
 updateClock();
 </script>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </body>
 </html>
