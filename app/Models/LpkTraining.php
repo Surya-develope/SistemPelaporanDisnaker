@@ -11,6 +11,8 @@ class LpkTraining extends Model
         'program_pelatihan',
         'jumlah_peserta',
         'jumlah_paket',
+        'bulan',
+        'tahun',
     ];
 
     public function lpk()

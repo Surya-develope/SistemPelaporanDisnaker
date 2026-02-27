@@ -12,6 +12,8 @@ class Lpk extends Model
         'tahun_berdiri',
         'alamat',
         'status',
+        'bulan',
+        'tahun',
     ];
 
     public function lpkTrainings()
