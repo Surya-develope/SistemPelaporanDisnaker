@@ -24,7 +24,7 @@ class LpkImport implements ToModel, WithHeadingRow
         return Lpk::updateOrCreate(
             ['nama_lpk' => $row['nama_lpks']], // Find by 'nama_lpks' header
             [
-                'nama_pimpinan' => $row['nama pimpinan'] ?? null,
+                'nama_pimpinan' => $row['nama_pimpinan'] ?? null,
                 'tahun_berdiri' => $row['tahun_berdiri'] ?? null,
                 'alamat'        => $row['alamat'] ?? null,
                 'status'        => 'aktif', // default assumed active unless otherwise specified
