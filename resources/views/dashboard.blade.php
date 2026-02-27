@@ -165,10 +165,11 @@
 
 {{-- ===================== GRAFIK STATISTIK BULANAN ===================== --}}
 <div class="card card-modern shadow-sm p-4">
-    <h6 class="mb-3">Statistik Bulanan</h6>
+    <h6 class="mb-3 fw-bold">Statistik Bulanan</h6>
     <canvas id="myChart" height="100"></canvas>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const ctx = document.getElementById('myChart').getContext('2d');
@@ -199,9 +200,7 @@ document.addEventListener("DOMContentLoaded", function () {
         options: {
             responsive: true,
             plugins: {
-                legend: {
-                    position: 'top'
-                }
+                legend: { position: 'top' }
             }
         }
     });

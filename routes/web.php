@@ -78,10 +78,37 @@ Route::get('/', function () {
     $totalLpkAktif     = \App\Models\Lpk::where('status', 'aktif')->count();
     $totalPeserta      = \App\Models\LpkTraining::sum('jumlah_peserta');
 
+    // === GRAFIK BULANAN (tahun berjalan) ===
+    $tahun = (int) date('Y');
+
+    // Penta: jumlah pencari kerja terdaftar per bulan
+    $pentaBulanan = \App\Models\PencariKerja::selectRaw('MONTH(created_at) as bulan, COUNT(*) as total')
+        ->whereYear('created_at', $tahun)
+        ->groupBy('bulan')
+        ->pluck('total', 'bulan');
+
+    // PHI: total pekerja PKWT per bulan
+    $phiBulanan = \App\Models\PkwtReport::selectRaw('bulan, SUM(total_pekerja) as total')
+        ->where('tahun', $tahun)
+        ->groupBy('bulan')
+        ->pluck('total', 'bulan');
+
+    // Lattas: jumlah peserta pelatihan per bulan
+    $lattasBulanan = \App\Models\LpkTraining::selectRaw('bulan, SUM(jumlah_peserta) as total')
+        ->where('tahun', $tahun)
+        ->groupBy('bulan')
+        ->pluck('total', 'bulan');
+
+    // Susun array 12 bulan (indeks 0=Jan … 11=Des)
+    $chartPenta  = collect(range(1, 12))->map(fn($m) => (int) ($pentaBulanan[$m]  ?? 0))->values()->toArray();
+    $chartPhi    = collect(range(1, 12))->map(fn($m) => (int) ($phiBulanan[$m]    ?? 0))->values()->toArray();
+    $chartLattas = collect(range(1, 12))->map(fn($m) => (int) ($lattasBulanan[$m] ?? 0))->values()->toArray();
+
     return view('dashboard', compact(
         'totalPencariKerja', 'totalLowongan', 'totalPenempatan',
         'totalLaporanPkwt', 'totalPekerjaKwt', 'totalKasusPhi',
-        'totalPelatihan', 'totalLpkAktif', 'totalPeserta'
+        'totalPelatihan', 'totalLpkAktif', 'totalPeserta',
+        'chartPenta', 'chartPhi', 'chartLattas', 'tahun'
     ));
 });
 
