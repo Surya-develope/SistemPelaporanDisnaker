@@ -73,28 +73,49 @@ Route::get('/', function () {
 |--------------------------------------------------------------------------
 */
 
-Route::get('/penta/tenaga-kerja', function () {
+use App\Http\Controllers\PentaController;
 
-    if (!session()->has('role')) return redirect('/login');
-    if (!in_array(session('role'), ['admin', 'penta'])) abort(403);
+Route::middleware(['web'])->group(function () {
+    Route::get('/penta/tenaga-kerja', function (Request $request) {
+        if (!session()->has('role')) return redirect('/login');
+        if (!in_array(session('role'), ['admin', 'penta'])) abort(403);
+        return app(PentaController::class)->tenagaKerja($request);
+    });
 
-    return view('penta.tenaga_kerja');
-});
+    Route::get('/penta/lowongan', function (Request $request) {
+        if (!session()->has('role')) return redirect('/login');
+        if (!in_array(session('role'), ['admin', 'penta'])) abort(403);
+        return app(PentaController::class)->lowongan($request);
+    });
 
-Route::get('/penta/lowongan', function () {
+    Route::get('/penta/rekap', function (Request $request) {
+        if (!session()->has('role')) return redirect('/login');
+        if (!in_array(session('role'), ['admin', 'penta'])) abort(403);
+        return app(PentaController::class)->rekap($request);
+    });
 
-    if (!session()->has('role')) return redirect('/login');
-    if (!in_array(session('role'), ['admin', 'penta'])) abort(403);
+    // Import Data Penta dari Excel
+    Route::prefix('penta/import')->group(function () {
+        Route::get('/', function (Request $request) {
+            if (!session()->has('role') || !in_array(session('role'), ['admin', 'penta'])) abort(403);
+            return app(PentaController::class)->importIndex($request);
+        })->name('penta.import');
 
-    return view('penta.lowongan');
-});
+        Route::post('/lowongan', function (Request $request) {
+            if (!session()->has('role') || !in_array(session('role'), ['admin', 'penta'])) abort(403);
+            return app(PentaController::class)->importLowongan($request);
+        })->name('penta.import.lowongan');
 
-Route::get('/penta/rekap', function () {
+        Route::post('/pencari', function (Request $request) {
+            if (!session()->has('role') || !in_array(session('role'), ['admin', 'penta'])) abort(403);
+            return app(PentaController::class)->importPencari($request);
+        })->name('penta.import.pencari');
 
-    if (!session()->has('role')) return redirect('/login');
-    if (!in_array(session('role'), ['admin', 'penta'])) abort(403);
-
-    return view('penta.rekap');
+        Route::post('/penempatan', function (Request $request) {
+            if (!session()->has('role') || !in_array(session('role'), ['admin', 'penta'])) abort(403);
+            return app(PentaController::class)->importPenempatan($request);
+        })->name('penta.import.penempatan');
+    });
 });
 
 
@@ -139,12 +160,21 @@ Route::get('/phi/peraturan', function () {
 */
 
 // Data Pelatihan
-Route::get('/lattas/pelatihan', function () {
+Route::get('/lattas/pelatihan', function (Request $request) {
 
     if (!session()->has('role')) return redirect('/login');
     if (!in_array(session('role'), ['admin', 'lattas'])) abort(403);
 
-    $trainings = \App\Models\LpkTraining::with('lpk')->get();
+    $query = \App\Models\LpkTraining::with('lpk');
+    
+    if ($request->filled('bulan')) {
+        $query->where('bulan', $request->bulan);
+    }
+    if ($request->filled('tahun')) {
+        $query->where('tahun', $request->tahun);
+    }
+
+    $trainings = $query->get();
     return view('lattas.pelatihan', compact('trainings'));
 });
 

@@ -122,6 +122,9 @@ $role = session('role');
             <a href="/penta/rekap" class="{{ request()->is('penta/rekap') ? 'active' : '' }}">
                 <i class="fa fa-chart-pie me-2"></i> Rekap Pendaftaran
             </a>
+            <a href="/penta/import" class="{{ request()->is('penta/import') ? 'active' : '' }}">
+                <i class="fa fa-file-excel me-2"></i> Import Data (Excel)
+            </a>
         </div>
     </div>
     @endif

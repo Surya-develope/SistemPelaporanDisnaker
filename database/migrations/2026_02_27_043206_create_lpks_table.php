@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('nama_lpk');
             $table->string('nama_pimpinan')->nullable();
-            $table->string('tahun_berdiri')->nullable();
+            $table->integer('tahun_berdiri')->nullable();
             $table->text('alamat')->nullable();
-            $table->enum('status', ['aktif', 'tidak aktif'])->default('aktif');
+            $table->string('status')->default('aktif'); // aktif/tidak aktif
+            $table->integer('bulan')->nullable();
+            $table->integer('tahun')->nullable();
             $table->timestamps();
         });
     }

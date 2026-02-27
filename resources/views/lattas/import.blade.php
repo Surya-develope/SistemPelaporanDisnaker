@@ -39,6 +39,22 @@
                         Format kolom (Baris 1): <code>nama_lpklembaga</code>, <code>program_pelatihan_porglat</code>, <code>jumlah_peserta</code>, <code>jumlah_paket</code>
                     </label>
                     <a href="{{ asset('storage/template_training_lpk.xlsx') }}" class="btn btn-sm btn-outline-success mb-3"><i class="fa fa-download me-1"></i> Download Template Pelatihan</a>
+                    
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label">Bulan Laporan</label>
+                            <select name="bulan" class="form-select" required>
+                                @for($i=1; $i<=12; $i++)
+                                    <option value="{{ $i }}" {{ date('n') == $i ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $i, 1)) }}</option>
+                                @endfor
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Tahun Laporan</label>
+                            <input type="number" name="tahun" class="form-control" value="{{ date('Y') }}" required min="2000" max="2100">
+                        </div>
+                    </div>
+
                     <input type="file" name="file" class="form-control" required accept=".xls,.xlsx,.csv">
                 </div>
                 <button class="btn btn-success w-100" type="submit">Import Pelatihan LPK</button>

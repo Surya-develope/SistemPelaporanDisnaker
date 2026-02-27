@@ -31,10 +31,12 @@ class LattasController extends Controller
     public function importLpkTraining(Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:xls,xlsx,csv'
+            'file'  => 'required|mimes:xls,xlsx,csv',
+            'bulan' => 'required|integer|min:1|max:12',
+            'tahun' => 'required|integer|min:2000|max:2100',
         ]);
 
-        Excel::import(new LpkTrainingImport, $request->file('file'));
+        Excel::import(new LpkTrainingImport($request->bulan, $request->tahun), $request->file('file'));
 
         return back()->with('success', 'Data Pelatihan LPK berhasil diimpor!');
     }

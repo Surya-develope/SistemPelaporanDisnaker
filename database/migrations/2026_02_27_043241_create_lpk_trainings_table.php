@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('program_pelatihan');
             $table->integer('jumlah_peserta')->default(0);
             $table->integer('jumlah_paket')->default(0);
+            $table->integer('bulan')->nullable();
+            $table->integer('tahun')->nullable();
             $table->timestamps();
         });
     }
