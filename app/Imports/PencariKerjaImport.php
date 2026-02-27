@@ -8,6 +8,15 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class PencariKerjaImport implements ToModel, WithHeadingRow
 {
+    protected $bulan;
+    protected $tahun;
+
+    public function __construct($bulan, $tahun)
+    {
+        $this->bulan = $bulan;
+        $this->tahun = $tahun;
+    }
+
     public function model(array $row)
     {
         if (empty($row['nik']) || empty($row['nama'])) {
@@ -34,6 +43,8 @@ class PencariKerjaImport implements ToModel, WithHeadingRow
             'jurusan'              => $row['jurusan'] ?? null,
             'tanggal_daftar'       => isset($row['tanggal_daftar']) && strtotime($row['tanggal_daftar']) ? date('Y-m-d', strtotime($row['tanggal_daftar'])) : null,
             'status_verifikasi'    => strtoupper($row['status_verifikasi'] ?? 'BELUM DIVERIFIKASI'),
+            'bulan'                => $this->bulan,
+            'tahun'                => $this->tahun,
         ]);
     }
 }

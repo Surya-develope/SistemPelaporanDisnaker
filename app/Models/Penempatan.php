@@ -21,5 +21,7 @@ class Penempatan extends Model
         'domisili_lowongan',
         'tanggal_melamar',
         'tanggal_diterima',
+        'bulan',
+        'tahun',
     ];
 }

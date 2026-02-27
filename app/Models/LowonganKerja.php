@@ -26,5 +26,7 @@ class LowonganKerja extends Model
         'status_lowongan',
         'tanggal_posting',
         'tanggal_kadaluwarsa',
+        'bulan',
+        'tahun',
     ];
 }

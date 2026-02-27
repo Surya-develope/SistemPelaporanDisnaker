@@ -25,5 +25,7 @@ class PencariKerja extends Model
         'jurusan',
         'tanggal_daftar',
         'status_verifikasi',
+        'bulan',
+        'tahun',
     ];
 }

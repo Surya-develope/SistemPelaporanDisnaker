@@ -8,6 +8,15 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class LpkImport implements ToModel, WithHeadingRow
 {
+    protected $bulan;
+    protected $tahun;
+
+    public function __construct($bulan, $tahun)
+    {
+        $this->bulan = $bulan;
+        $this->tahun = $tahun;
+    }
+
     /**
     * @param array $row
     *
@@ -28,6 +37,8 @@ class LpkImport implements ToModel, WithHeadingRow
                 'tahun_berdiri' => $row['tahun_berdiri'] ?? null,
                 'alamat'        => $row['alamat'] ?? null,
                 'status'        => 'aktif', // default assumed active unless otherwise specified
+                'bulan'         => $this->bulan,
+                'tahun'         => $this->tahun,
             ]
         );
     }

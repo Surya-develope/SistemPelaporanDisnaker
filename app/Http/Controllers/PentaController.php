@@ -13,21 +13,30 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class PentaController extends Controller
 {
-    public function lowongan()
+    public function lowongan(Request $request)
     {
-        $lowongans = LowonganKerja::latest('tanggal_posting')->get();
+        $query = LowonganKerja::latest('tanggal_posting');
+        if ($request->filled('bulan')) $query->where('bulan', $request->bulan);
+        if ($request->filled('tahun')) $query->where('tahun', $request->tahun);
+        $lowongans = $query->get();
         return view('penta.lowongan', compact('lowongans'));
     }
 
-    public function tenagaKerja()
+    public function tenagaKerja(Request $request)
     {
-        $pencaris = PencariKerja::latest('tanggal_daftar')->get();
+        $query = PencariKerja::latest('tanggal_daftar');
+        if ($request->filled('bulan')) $query->where('bulan', $request->bulan);
+        if ($request->filled('tahun')) $query->where('tahun', $request->tahun);
+        $pencaris = $query->get();
         return view('penta.tenaga_kerja', compact('pencaris'));
     }
 
-    public function rekap()
+    public function rekap(Request $request)
     {
-        $penempatans = Penempatan::latest('tanggal_diterima')->get();
+        $query = Penempatan::latest('tanggal_diterima');
+        if ($request->filled('bulan')) $query->where('bulan', $request->bulan);
+        if ($request->filled('tahun')) $query->where('tahun', $request->tahun);
+        $penempatans = $query->get();
         return view('penta.rekap', compact('penempatans'));
     }
 
@@ -38,22 +47,104 @@ class PentaController extends Controller
 
     public function importLowongan(Request $request)
     {
-        $request->validate(['file' => 'required|mimes:xls,xlsx,csv']);
-        Excel::import(new LowonganKerjaImport, $request->file('file'));
+        $request->validate([
+            'file' => 'required|mimes:xls,xlsx,csv',
+            'bulan' => 'required|integer|min:1|max:12',
+            'tahun' => 'required|integer|min:2000|max:2100',
+        ]);
+        Excel::import(new LowonganKerjaImport($request->bulan, $request->tahun), $request->file('file'));
         return back()->with('success', 'Data Lowongan Kerja berhasil diimpor!');
     }
 
     public function importPencari(Request $request)
     {
-        $request->validate(['file' => 'required|mimes:xls,xlsx,csv']);
-        Excel::import(new PencariKerjaImport, $request->file('file'));
+        $request->validate([
+            'file' => 'required|mimes:xls,xlsx,csv',
+            'bulan' => 'required|integer|min:1|max:12',
+            'tahun' => 'required|integer|min:2000|max:2100',
+        ]);
+        Excel::import(new PencariKerjaImport($request->bulan, $request->tahun), $request->file('file'));
         return back()->with('success', 'Data Pencari Kerja Aktif berhasil diimpor!');
     }
 
     public function importPenempatan(Request $request)
     {
-        $request->validate(['file' => 'required|mimes:xls,xlsx,csv']);
-        Excel::import(new PenempatanImport, $request->file('file'));
+        $request->validate([
+            'file' => 'required|mimes:xls,xlsx,csv',
+            'bulan' => 'required|integer|min:1|max:12',
+            'tahun' => 'required|integer|min:2000|max:2100',
+        ]);
+        Excel::import(new PenempatanImport($request->bulan, $request->tahun), $request->file('file'));
         return back()->with('success', 'Data Penempatan berhasil diimpor!');
+    }
+
+    public function updateLowongan(Request $request, $id)
+    {
+        $request->validate([
+            'judul_lowongan' => 'required|string',
+            'perusahaan' => 'required|string',
+            'tipe_pekerjaan' => 'nullable|string',
+            'kuota' => 'required|integer|min:0',
+            'kuota_sisa' => 'required|integer|min:0',
+            'status_lowongan' => 'required|string',
+        ]);
+
+        $lowongan = LowonganKerja::findOrFail($id);
+        $lowongan->update($request->all());
+
+        return back()->with('success', 'Data Lowongan Kerja berhasil diperbarui!');
+    }
+
+    public function updatePencari(Request $request, $id)
+    {
+        $request->validate([
+            'nik' => 'required|string',
+            'nama' => 'required|string',
+            'jenis_kelamin' => 'required|in:L,P',
+            'domisili' => 'required|string',
+            'pendidikan_terakhir' => 'nullable|string',
+            'status_verifikasi' => 'required|string',
+        ]);
+
+        $pencari = PencariKerja::findOrFail($id);
+        $pencari->update($request->all());
+
+        return back()->with('success', 'Data Pencari Kerja Aktif berhasil diperbarui!');
+    }
+
+    public function updatePenempatan(Request $request, $id)
+    {
+        $request->validate([
+            'nama' => 'required|string',
+            'judul_lowongan' => 'required|string',
+            'nama_perusahaan' => 'required|string',
+            'pendidikan_terakhir_pelamar' => 'required|string',
+        ]);
+
+        $penempatan = Penempatan::findOrFail($id);
+        $penempatan->update($request->all());
+
+        return back()->with('success', 'Data Penempatan berhasil diperbarui!');
+    }
+
+    public function destroyLowongan($id)
+    {
+        $lowongan = LowonganKerja::findOrFail($id);
+        $lowongan->delete();
+        return back()->with('success', 'Data Lowongan Kerja berhasil dihapus!');
+    }
+
+    public function destroyPencari($id)
+    {
+        $pencari = PencariKerja::findOrFail($id);
+        $pencari->delete();
+        return back()->with('success', 'Data Pencari Kerja berhasil dihapus!');
+    }
+
+    public function destroyPenempatan($id)
+    {
+        $penempatan = Penempatan::findOrFail($id);
+        $penempatan->delete();
+        return back()->with('success', 'Data Penempatan berhasil dihapus!');
     }
 }

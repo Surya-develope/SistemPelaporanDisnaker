@@ -162,6 +162,38 @@ Route::middleware(['web'])->group(function () {
             return app(PentaController::class)->importPenempatan($request);
         })->name('penta.import.penempatan');
     });
+
+    // Delete Data Penta
+    Route::delete('/penta/lowongan/{id}', function (Request $request, $id) {
+        if (!session()->has('role') || !in_array(session('role'), ['admin', 'penta'])) abort(403);
+        return app(PentaController::class)->destroyLowongan($id);
+    })->name('penta.destroy.lowongan');
+
+    Route::delete('/penta/pencari/{id}', function (Request $request, $id) {
+        if (!session()->has('role') || !in_array(session('role'), ['admin', 'penta'])) abort(403);
+        return app(PentaController::class)->destroyPencari($id);
+    })->name('penta.destroy.pencari');
+
+    Route::delete('/penta/penempatan/{id}', function (Request $request, $id) {
+        if (!session()->has('role') || !in_array(session('role'), ['admin', 'penta'])) abort(403);
+        return app(PentaController::class)->destroyPenempatan($id);
+    })->name('penta.destroy.penempatan');
+    
+    // Update Data Penta
+    Route::put('/penta/lowongan/{id}', function (Request $request, $id) {
+        if (!session()->has('role') || !in_array(session('role'), ['admin', 'penta'])) abort(403);
+        return app(PentaController::class)->updateLowongan($request, $id);
+    })->name('penta.update.lowongan');
+
+    Route::put('/penta/pencari/{id}', function (Request $request, $id) {
+        if (!session()->has('role') || !in_array(session('role'), ['admin', 'penta'])) abort(403);
+        return app(PentaController::class)->updatePencari($request, $id);
+    })->name('penta.update.pencari');
+
+    Route::put('/penta/penempatan/{id}', function (Request $request, $id) {
+        if (!session()->has('role') || !in_array(session('role'), ['admin', 'penta'])) abort(403);
+        return app(PentaController::class)->updatePenempatan($request, $id);
+    })->name('penta.update.penempatan');
 });
 
 
@@ -225,22 +257,40 @@ Route::get('/lattas/pelatihan', function (Request $request) {
 });
 
 // Rekap LPK Aktif
-Route::get('/lattas/lpk-aktif', function () {
+Route::get('/lattas/lpk-aktif', function (Request $request) {
 
     if (!session()->has('role')) return redirect('/login');
     if (!in_array(session('role'), ['admin', 'lattas'])) abort(403);
 
-    $lpks = \App\Models\Lpk::where('status', 'aktif')->get();
+    $query = \App\Models\Lpk::where('status', 'aktif');
+    
+    if ($request->filled('bulan')) {
+        $query->where('bulan', $request->bulan);
+    }
+    if ($request->filled('tahun')) {
+        $query->where('tahun', $request->tahun);
+    }
+
+    $lpks = $query->get();
     return view('lattas.lpk_aktif', compact('lpks'));
 });
 
 // Rekap LPK Non Aktif
-Route::get('/lattas/lpk-nonaktif', function () {
+Route::get('/lattas/lpk-nonaktif', function (Request $request) {
 
     if (!session()->has('role')) return redirect('/login');
     if (!in_array(session('role'), ['admin', 'lattas'])) abort(403);
 
-    $lpks = \App\Models\Lpk::where('status', 'tidak aktif')->get();
+    $query = \App\Models\Lpk::where('status', 'tidak aktif');
+    
+    if ($request->filled('bulan')) {
+        $query->where('bulan', $request->bulan);
+    }
+    if ($request->filled('tahun')) {
+        $query->where('tahun', $request->tahun);
+    }
+
+    $lpks = $query->get();
     return view('lattas.lpk_nonaktif', compact('lpks'));
 });
 
@@ -262,4 +312,28 @@ Route::prefix('lattas/import')->group(function () {
         if (!session()->has('role') || !in_array(session('role'), ['admin', 'lattas'])) abort(403);
         return app(LattasController::class)->importLpkTraining($request);
     })->name('lattas.import.training');
+});
+
+// Delete Data Lattas
+Route::middleware(['web'])->group(function () {
+    Route::delete('/lattas/lpk/{id}', function (Request $request, $id) {
+        if (!session()->has('role') || !in_array(session('role'), ['admin', 'lattas'])) abort(403);
+        return app(LattasController::class)->destroyLpk($id);
+    })->name('lattas.destroy.lpk');
+
+    Route::delete('/lattas/training/{id}', function (Request $request, $id) {
+        if (!session()->has('role') || !in_array(session('role'), ['admin', 'lattas'])) abort(403);
+        return app(LattasController::class)->destroyLpkTraining($id);
+    })->name('lattas.destroy.training');
+    
+    // Update Data Lattas
+    Route::put('/lattas/lpk/{id}', function (Request $request, $id) {
+        if (!session()->has('role') || !in_array(session('role'), ['admin', 'lattas'])) abort(403);
+        return app(LattasController::class)->updateLpk($request, $id);
+    })->name('lattas.update.lpk');
+
+    Route::put('/lattas/training/{id}', function (Request $request, $id) {
+        if (!session()->has('role') || !in_array(session('role'), ['admin', 'lattas'])) abort(403);
+        return app(LattasController::class)->updateLpkTraining($request, $id);
+    })->name('lattas.update.training');
 });
