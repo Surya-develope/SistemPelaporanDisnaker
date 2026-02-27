@@ -63,7 +63,26 @@ Route::get('/', function () {
         return redirect('/login');
     }
 
-    return view('dashboard');
+    // === BIDANG PENTA ===
+    $totalPencariKerja = \App\Models\PencariKerja::count();
+    $totalLowongan     = \App\Models\LowonganKerja::count();
+    $totalPenempatan   = \App\Models\Penempatan::count();
+
+    // === BIDANG PHI ===
+    $totalLaporanPkwt  = \App\Models\PkwtReport::count();
+    $totalPekerjaKwt   = \App\Models\PkwtReport::sum('total_pekerja');
+    $totalKasusPhi     = \App\Models\PhiReport::sum('kasus_masuk');
+
+    // === BIDANG LATTAS ===
+    $totalPelatihan    = \App\Models\LpkTraining::count();
+    $totalLpkAktif     = \App\Models\Lpk::where('status', 'aktif')->count();
+    $totalPeserta      = \App\Models\LpkTraining::sum('jumlah_peserta');
+
+    return view('dashboard', compact(
+        'totalPencariKerja', 'totalLowongan', 'totalPenempatan',
+        'totalLaporanPkwt', 'totalPekerjaKwt', 'totalKasusPhi',
+        'totalPelatihan', 'totalLpkAktif', 'totalPeserta'
+    ));
 });
 
 
