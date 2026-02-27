@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Models\LowonganKerja;
 use App\Models\PencariKerja;
 use App\Models\Penempatan;
