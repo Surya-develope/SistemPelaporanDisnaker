@@ -18,7 +18,10 @@ return new class extends Migration
             $table->integer('tahun');
             $table->integer('sisa_bulan_lalu');
             $table->integer('kasus_masuk');
-            $table->integer('kasus_selesai');
+            $table->integer('selesai_bipartit')->default(0);
+            $table->integer('selesai_pb')->default(0);
+            $table->integer('selesai_anjuran')->default(0);
+            $table->integer('selesai_lainnya')->default(0);
             $table->integer('sisa_kasus_akhir');
             $table->string('file_path');
             $table->timestamps();

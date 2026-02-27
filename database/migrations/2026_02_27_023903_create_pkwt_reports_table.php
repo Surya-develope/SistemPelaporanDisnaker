@@ -17,8 +17,7 @@ return new class extends Migration
             $table->integer('bulan');
             $table->integer('tahun');
             $table->integer('total_perusahaan');
-            $table->integer('total_pekerja_l');
-            $table->integer('total_pekerja_p');
+            $table->integer('total_pekerja');
             $table->string('file_path');
             $table->timestamps();
         });
