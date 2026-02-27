@@ -166,6 +166,9 @@ $role = session('role');
             <a href="/lattas/lpk-nonaktif" class="{{ request()->is('lattas/lpk-nonaktif') ? 'active' : '' }}">
                 <i class="fa fa-building-circle-xmark me-2"></i> Rekap LPK Non Aktif
             </a>
+            <a href="/lattas/import" class="{{ request()->is('lattas/import') ? 'active' : '' }} text-info">
+                <i class="fa fa-file-excel me-2"></i> Upload Data Excel
+            </a>
         </div>
     </div>
     @endif

@@ -144,7 +144,8 @@ Route::get('/lattas/pelatihan', function () {
     if (!session()->has('role')) return redirect('/login');
     if (!in_array(session('role'), ['admin', 'lattas'])) abort(403);
 
-    return view('lattas.pelatihan');
+    $trainings = \App\Models\LpkTraining::with('lpk')->get();
+    return view('lattas.pelatihan', compact('trainings'));
 });
 
 // Rekap LPK Aktif
@@ -153,7 +154,8 @@ Route::get('/lattas/lpk-aktif', function () {
     if (!session()->has('role')) return redirect('/login');
     if (!in_array(session('role'), ['admin', 'lattas'])) abort(403);
 
-    return view('lattas.lpk_aktif');
+    $lpks = \App\Models\Lpk::where('status', 'aktif')->get();
+    return view('lattas.lpk_aktif', compact('lpks'));
 });
 
 // Rekap LPK Non Aktif
@@ -162,5 +164,26 @@ Route::get('/lattas/lpk-nonaktif', function () {
     if (!session()->has('role')) return redirect('/login');
     if (!in_array(session('role'), ['admin', 'lattas'])) abort(403);
 
-    return view('lattas.lpk_nonaktif');
+    $lpks = \App\Models\Lpk::where('status', 'tidak aktif')->get();
+    return view('lattas.lpk_nonaktif', compact('lpks'));
+});
+
+// Import Rekap Data LPK dari Excel
+use App\Http\Controllers\LattasController;
+
+Route::prefix('lattas/import')->group(function () {
+    Route::get('/', function (Request $request) {
+        if (!session()->has('role') || !in_array(session('role'), ['admin', 'lattas'])) abort(403);
+        return app(LattasController::class)->index($request);
+    })->name('lattas.import');
+    
+    Route::post('/master', function (Request $request) {
+        if (!session()->has('role') || !in_array(session('role'), ['admin', 'lattas'])) abort(403);
+        return app(LattasController::class)->importLpk($request);
+    })->name('lattas.import.master');
+
+    Route::post('/training', function (Request $request) {
+        if (!session()->has('role') || !in_array(session('role'), ['admin', 'lattas'])) abort(403);
+        return app(LattasController::class)->importLpkTraining($request);
+    })->name('lattas.import.training');
 });
