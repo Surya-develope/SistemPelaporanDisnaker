@@ -74,7 +74,7 @@
                     <th>Kuota Awal</th>
                     <th>Sisa Kuota</th>
                     <th>Status</th>
-                    <th width="8%">Aksi</th>
+                    <th width="10%">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -102,6 +102,9 @@
                     </td>
                     <td class="text-center">
                         <div class="d-flex gap-1 justify-content-center">
+                            <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#detailLowonganModal{{ $loker->id }}" title="Detail Lowongan">
+                                <i class="fa fa-info-circle"></i>
+                            </button>
                             <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editLowonganModal{{ $loker->id }}" title="Edit Data">
                                 <i class="fa fa-edit"></i>
                             </button>
@@ -127,6 +130,91 @@
 
 <!-- Render Modals Outside Table -->
 @foreach($lowongans as $loker)
+<!-- Modal Detail Lowongan -->
+<div class="modal fade text-start" id="detailLowonganModal{{ $loker->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detail Lowongan Kerja</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-2">
+                    <div class="col-md-4 text-muted">Posisi / Judul</div>
+                    <div class="col-md-8 fw-bold">{{ $loker->judul_lowongan }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 text-muted">Perusahaan</div>
+                    <div class="col-md-8">{{ $loker->perusahaan }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 text-muted">Deskripsi Pekerjaan</div>
+                    <div class="col-md-8">{{ $loker->deskripsi_pekerjaan ?? '-' }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 text-muted">Kategori Pekerjaan</div>
+                    <div class="col-md-8">{{ $loker->kategori_pekerjaan ?? '-' }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 text-muted">Tipe Pekerjaan</div>
+                    <div class="col-md-8">{{ $loker->tipe_pekerjaan ?? '-' }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 text-muted">Sektor Pekerjaan</div>
+                    <div class="col-md-8">{{ $loker->sektor_pekerjaan ?? '-' }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 text-muted">Fungsi Pekerjaan</div>
+                    <div class="col-md-8">{{ $loker->fungsi_pekerjaan ?? '-' }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 text-muted">Kode KBJI</div>
+                    <div class="col-md-8">{{ $loker->kode_kbji ?? '-' }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 text-muted">Pendidikan Minimal</div>
+                    <div class="col-md-8">{{ $loker->minimal_pendidikan ?? '-' }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 text-muted">Keahlian Diperlukan</div>
+                    <div class="col-md-8">{{ $loker->keahlian_diperlukan ?? '-' }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 text-muted">Kebutuhan Disabilitas</div>
+                    <div class="col-md-8">{{ $loker->kebutuhan_disabilitas ?? '-' }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 text-muted">Kuota / Sisa</div>
+                    <div class="col-md-8">{{ $loker->kuota }} / {{ $loker->kuota_sisa }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 text-muted">Tanggal Posting</div>
+                    <div class="col-md-8">{{ $loker->tanggal_posting ? \Carbon\Carbon::parse($loker->tanggal_posting)->format('d M Y') : '-' }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 text-muted">Tanggal Kadaluwarsa</div>
+                    <div class="col-md-8">{{ $loker->tanggal_kadaluwarsa ? \Carbon\Carbon::parse($loker->tanggal_kadaluwarsa)->format('d M Y') : '-' }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 text-muted">Status</div>
+                    <div class="col-md-8">
+                        @if(strtolower($loker->status_lowongan) == 'open' || strtolower($loker->status_lowongan) == 'tersedia')
+                            <span class="badge bg-success">{{ ucfirst($loker->status_lowongan) }}</span>
+                        @elseif(strtolower($loker->status_lowongan) == 'closed' || strtolower($loker->status_lowongan) == 'tutup')
+                            <span class="badge bg-secondary">{{ ucfirst($loker->status_lowongan) }}</span>
+                        @else
+                            <span class="badge bg-danger">{{ $loker->status_lowongan }}</span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade text-start" id="editLowonganModal{{ $loker->id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">

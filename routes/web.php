@@ -84,7 +84,7 @@ Route::get('/', function () {
     // Penta: jumlah pencari kerja terdaftar per bulan
     $pentaBulanan = \App\Models\PencariKerja::selectRaw('MONTH(created_at) as bulan, COUNT(*) as total')
         ->whereYear('created_at', $tahun)
-        ->groupBy('bulan')
+        ->groupByRaw('MONTH(created_at)')
         ->pluck('total', 'bulan');
 
     // PHI: total pekerja PKWT per bulan
