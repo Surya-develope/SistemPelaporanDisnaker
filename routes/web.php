@@ -203,23 +203,51 @@ Route::middleware(['web'])->group(function () {
 |--------------------------------------------------------------------------
 */
 
-// Rekap PKWT
-Route::get('/phi/pkwt', function () {
+use App\Http\Controllers\PhiController;
 
+// Rekap PKWT
+Route::get('/phi/pkwt', function (Request $request) {
     if (!session()->has('role')) return redirect('/login');
     if (!in_array(session('role'), ['admin', 'phi'])) abort(403);
-
-    return view('phi.pkwt');
+    return app(PhiController::class)->pkwt($request);
 });
+
+Route::post('/phi/pkwt', function (Request $request) {
+    if (!session()->has('role') || !in_array(session('role'), ['admin', 'phi'])) abort(403);
+    return app(PhiController::class)->storePkwt($request);
+})->name('phi.store.pkwt');
+
+Route::put('/phi/pkwt/{id}', function (Request $request, $id) {
+    if (!session()->has('role') || !in_array(session('role'), ['admin', 'phi'])) abort(403);
+    return app(PhiController::class)->updatePkwt($request, $id);
+})->name('phi.update.pkwt');
+
+Route::delete('/phi/pkwt/{id}', function (Request $request, $id) {
+    if (!session()->has('role') || !in_array(session('role'), ['admin', 'phi'])) abort(403);
+    return app(PhiController::class)->destroyPkwt($id);
+})->name('phi.destroy.pkwt');
 
 // Rekap Pengaduan Kasus
-Route::get('/phi/pengaduan', function () {
-
+Route::get('/phi/pengaduan', function (Request $request) {
     if (!session()->has('role')) return redirect('/login');
     if (!in_array(session('role'), ['admin', 'phi'])) abort(403);
-
-    return view('phi.pengaduan');
+    return app(PhiController::class)->pengaduan($request);
 });
+
+Route::post('/phi/pengaduan', function (Request $request) {
+    if (!session()->has('role') || !in_array(session('role'), ['admin', 'phi'])) abort(403);
+    return app(PhiController::class)->storePengaduan($request);
+})->name('phi.store.pengaduan');
+
+Route::put('/phi/pengaduan/{id}', function (Request $request, $id) {
+    if (!session()->has('role') || !in_array(session('role'), ['admin', 'phi'])) abort(403);
+    return app(PhiController::class)->updatePengaduan($request, $id);
+})->name('phi.update.pengaduan');
+
+Route::delete('/phi/pengaduan/{id}', function (Request $request, $id) {
+    if (!session()->has('role') || !in_array(session('role'), ['admin', 'phi'])) abort(403);
+    return app(PhiController::class)->destroyPengaduan($id);
+})->name('phi.destroy.pengaduan');
 
 // Rekap Peraturan Perusahaan
 Route::get('/phi/peraturan', function () {

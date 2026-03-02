@@ -27,7 +27,7 @@
                     
                     <div class="row mb-3">
                         <div class="col-6">
-                            <label class="form-label">Bulan Laporan</label>
+                            <label class="form-label">Bulan</label>
                             <select name="bulan" class="form-select" required>
                                 @for($i=1; $i<=12; $i++)
                                     <option value="{{ $i }}" {{ date('n') == $i ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $i, 1)) }}</option>
@@ -35,7 +35,7 @@
                             </select>
                         </div>
                         <div class="col-6">
-                            <label class="form-label">Tahun Laporan</label>
+                            <label class="form-label">Tahun</label>
                             <input type="number" name="tahun" class="form-control" value="{{ date('Y') }}" required min="2000" max="2100">
                         </div>
                     </div>
@@ -58,7 +58,7 @@
                     
                     <div class="row mb-3">
                         <div class="col-6">
-                            <label class="form-label">Bulan Laporan</label>
+                            <label class="form-label">Bulan</label>
                             <select name="bulan" class="form-select" required>
                                 @for($i=1; $i<=12; $i++)
                                     <option value="{{ $i }}" {{ date('n') == $i ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $i, 1)) }}</option>
@@ -66,7 +66,7 @@
                             </select>
                         </div>
                         <div class="col-6">
-                            <label class="form-label">Tahun Laporan</label>
+                            <label class="form-label">Tahun</label>
                             <input type="number" name="tahun" class="form-control" value="{{ date('Y') }}" required min="2000" max="2100">
                         </div>
                     </div>
