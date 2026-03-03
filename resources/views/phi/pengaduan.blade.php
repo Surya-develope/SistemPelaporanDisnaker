@@ -157,7 +157,8 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label>Sisa Kasus di Akhir Bulan</label>
-                            <input type="number" name="sisa_kasus_akhir" class="form-control" value="{{ $p->sisa_kasus_akhir }}" required>
+                            <input type="number" name="sisa_kasus_akhir" class="form-control bg-light calc-result" value="{{ $p->sisa_kasus_akhir }}" readonly>
+                            <small class="text-info">Terisi otomatis sesuai kalkulasi</small>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label>Update File Lampiran (Opsional)</label>
@@ -201,11 +202,11 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label>Sisa Kasus Bulan Lalu</label>
-                            <input type="number" name="sisa_bulan_lalu" class="form-control" required>
+                            <input type="number" name="sisa_bulan_lalu" class="form-control calc-input" value="0" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label>Kasus Masuk Bulan Ini</label>
-                            <input type="number" name="kasus_masuk" class="form-control" required>
+                            <input type="number" name="kasus_masuk" class="form-control calc-input" value="0" required>
                         </div>
                     </div>
 
@@ -213,26 +214,27 @@
                     <div class="row">
                         <div class="col-md-3 mb-3">
                             <label>Bipartit</label>
-                            <input type="number" name="selesai_bipartit" class="form-control" value="0" required>
+                            <input type="number" name="selesai_bipartit" class="form-control calc-input" value="0" required>
                         </div>
                         <div class="col-md-3 mb-3">
                             <label>PB</label>
-                            <input type="number" name="selesai_pb" class="form-control" value="0" required>
+                            <input type="number" name="selesai_pb" class="form-control calc-input" value="0" required>
                         </div>
                         <div class="col-md-3 mb-3">
                             <label>Anjuran</label>
-                            <input type="number" name="selesai_anjuran" class="form-control" value="0" required>
+                            <input type="number" name="selesai_anjuran" class="form-control calc-input" value="0" required>
                         </div>
                         <div class="col-md-3 mb-3">
                             <label>Lainnya</label>
-                            <input type="number" name="selesai_lainnya" class="form-control" value="0" required>
+                            <input type="number" name="selesai_lainnya" class="form-control calc-input" value="0" required>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label>Sisa Kasus di Akhir Bulan</label>
-                            <input type="number" name="sisa_kasus_akhir" class="form-control" required>
+                            <input type="number" name="sisa_kasus_akhir" class="form-control bg-light calc-result" readonly>
+                            <small class="text-info">Terisi otomatis sesuai kalkulasi</small>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label>File Lampiran</label>
@@ -249,5 +251,34 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function calculateEndBalance(modal) {
+        const sisaLalu = parseInt(modal.querySelector('[name="sisa_bulan_lalu"]').value) || 0;
+        const masuk = parseInt(modal.querySelector('[name="kasus_masuk"]').value) || 0;
+        const bipartit = parseInt(modal.querySelector('[name="selesai_bipartit"]').value) || 0;
+        const pb = parseInt(modal.querySelector('[name="selesai_pb"]').value) || 0;
+        const anjuran = parseInt(modal.querySelector('[name="selesai_anjuran"]').value) || 0;
+        const lainnya = parseInt(modal.querySelector('[name="selesai_lainnya"]').value) || 0;
+
+        const totalSelesai = bipartit + pb + anjuran + lainnya;
+        const hasil = (sisaLalu + masuk) - totalSelesai;
+        
+        modal.querySelector('.calc-result').value = hasil;
+    }
+
+    // Attach listeners to all modals
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        const inputs = modal.querySelectorAll('.form-control[type="number"]');
+        inputs.forEach(input => {
+            if (!input.readOnly) {
+                input.addEventListener('input', () => calculateEndBalance(modal));
+            }
+        });
+    });
+});
+</script>
 
 @endsection

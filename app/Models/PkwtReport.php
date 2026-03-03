@@ -10,12 +10,19 @@ class PkwtReport extends Model
         'user_id',
         'bulan',
         'tahun',
-        'total_perusahaan',
+        'no_pencatatan',
+        'nama_perusahaan',
+        'alamat_pimpinan',
+        'nama_pekerja',
         'total_pekerja',
+        'jabatan',
+        'masa_kontrak',
         'file_path',
+        'keterangan',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
-    }}
+    }
+}

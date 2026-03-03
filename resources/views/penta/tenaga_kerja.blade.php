@@ -81,7 +81,7 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($pencaris as $pencari)
+                @forelse ($pencaris as $pencari)
                 <tr>
                     <td class="text-center">{{ $loop->iteration }}</td>
                     <td class="text-center">{{ $pencari->nik }}</td>
@@ -117,7 +117,7 @@
                         </div>
                     </td>
                 </tr>
-                @empty
+                @empty 
                 <tr>
                     <td colspan="8" class="text-center py-4 text-muted">Belum ada data Pencari Kerja yang diimpor.</td>
                 </tr>
@@ -128,7 +128,7 @@
 </div>
 
 <!-- Render Modals Outside Table -->
-@foreach($pencaris as $pencari)
+@foreach ($pencaris as $pencari)
 <div class="modal fade text-start" id="editPencariModal{{ $pencari->id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">

@@ -8,41 +8,91 @@ use App\Imports\LpkTrainingImport;
 use App\Models\Lpk;
 use App\Models\LpkTraining;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Redirect;
 
 class LattasController extends Controller
 {
+    // Data Pelatihan
+    public function pelatihan(Request $request)
+    {
+        $query = LpkTraining::with('lpk');
+
+        if ($request->filled('bulan')) {
+            $query->where('bulan', $request->bulan);
+        }
+        if ($request->filled('tahun')) {
+            $query->where('tahun', $request->tahun);
+        }
+
+        $trainings = $query->get();
+        return \Illuminate\Support\Facades\View::make('lattas.pelatihan', compact('trainings'));
+    }
+
+    // Rekap LPK Aktif
+    public function lpkAktif(Request $request)
+    {
+        $query = Lpk::where('status', 'aktif');
+
+        if ($request->filled('bulan')) {
+            $query->where('bulan', $request->bulan);
+        }
+        if ($request->filled('tahun')) {
+            $query->where('tahun', $request->tahun);
+        }
+
+        $lpks = $query->get();
+        return \Illuminate\Support\Facades\View::make('lattas.lpk_aktif', compact('lpks'));
+    }
+
+    // Rekap LPK Non Aktif
+    public function lpkNonaktif(Request $request)
+    {
+        $query = Lpk::where('status', 'tidak aktif');
+
+        if ($request->filled('bulan')) {
+            $query->where('bulan', $request->bulan);
+        }
+        if ($request->filled('tahun')) {
+            $query->where('tahun', $request->tahun);
+        }
+
+        $lpks = $query->get();
+        return \Illuminate\Support\Facades\View::make('lattas.lpk_nonaktif', compact('lpks'));
+    }
+
     // Muka halaman form upload
     public function index()
     {
-        return view('lattas.import');
+        return \Illuminate\Support\Facades\View::make('lattas.import');
     }
 
     // Proses data Master LPK
     public function importLpk(Request $request)
     {
         $request->validate([
-            'file'  => 'required|mimes:xls,xlsx,csv',
+            'file' => 'required|mimes:xls,xlsx,csv',
             'bulan' => 'required|integer|min:1|max:12',
             'tahun' => 'required|integer|min:2000|max:2100',
         ]);
 
         Excel::import(new LpkImport($request->bulan, $request->tahun), $request->file('file'));
 
-        return back()->with('success', 'Data Master LPK berhasil diimpor!');
+        return Redirect::back()->with('success', 'Data Master LPK berhasil diimpor!');
     }
 
     // Proses data Pelatihan LPK
     public function importLpkTraining(Request $request)
     {
         $request->validate([
-            'file'  => 'required|mimes:xls,xlsx,csv',
+            'file' => 'required|mimes:xls,xlsx,csv',
             'bulan' => 'required|integer|min:1|max:12',
             'tahun' => 'required|integer|min:2000|max:2100',
         ]);
 
         Excel::import(new LpkTrainingImport($request->bulan, $request->tahun), $request->file('file'));
 
-        return back()->with('success', 'Data Pelatihan LPK berhasil diimpor!');
+        return Redirect::back()->with('success', 'Data Pelatihan LPK berhasil diimpor!');
     }
 
     // Update LPK
@@ -59,7 +109,7 @@ class LattasController extends Controller
         $lpk = Lpk::findOrFail($id);
         $lpk->update($request->all());
 
-        return back()->with('success', 'Data LPK berhasil diperbarui!');
+        return Redirect::back()->with('success', 'Data LPK berhasil diperbarui!');
     }
 
     // Update LpkTraining
@@ -76,7 +126,7 @@ class LattasController extends Controller
         $training = LpkTraining::findOrFail($id);
         $training->update($request->only('program_pelatihan', 'jumlah_peserta', 'jumlah_paket', 'bulan', 'tahun'));
 
-        return back()->with('success', 'Data Pelatihan LPK berhasil diperbarui!');
+        return Redirect::back()->with('success', 'Data Pelatihan LPK berhasil diperbarui!');
     }
 
     // Hapus LPK (akan menghapus semua data LpkTraining yang terkait berkat relasi cascade di DB/Model)
@@ -84,7 +134,7 @@ class LattasController extends Controller
     {
         $lpk = Lpk::findOrFail($id);
         $lpk->delete();
-        return back()->with('success', 'Data LPK dan semua riwayat pelatihannya berhasil dihapus!');
+        return Redirect::back()->with('success', 'Data LPK dan semua riwayat pelatihannya berhasil dihapus!');
     }
 
     // Hapus LpkTraining
@@ -92,6 +142,6 @@ class LattasController extends Controller
     {
         $training = LpkTraining::findOrFail($id);
         $training->delete();
-        return back()->with('success', 'Data Pelatihan LPK berhasil dihapus!');
+        return Redirect::back()->with('success', 'Data Pelatihan LPK berhasil dihapus!');
     }
 }

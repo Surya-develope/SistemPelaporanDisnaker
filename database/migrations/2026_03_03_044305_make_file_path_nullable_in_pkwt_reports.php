@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        \Illuminate\Support\Facades\DB::statement("ALTER TABLE users MODIFY role ENUM('super_admin', 'staf', 'pejabat', 'penta') DEFAULT 'staf'");
+        Schema::table('pkwt_reports', function (Blueprint $table) {
+            //
+        });
     }
 
     /**
@@ -19,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        \Illuminate\Support\Facades\DB::statement("ALTER TABLE users MODIFY role ENUM('super_admin', 'staf', 'pejabat') DEFAULT 'staf'");
+        Schema::table('pkwt_reports', function (Blueprint $table) {
+            //
+        });
     }
 };

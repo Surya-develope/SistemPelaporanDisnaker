@@ -51,7 +51,7 @@
             </tr>
         </thead>
         <tbody>
-            @forelse($trainings as $training)
+            @forelse ($trainings as $training)
             <tr>
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $training->bulan ? date('F', mktime(0, 0, 0, $training->bulan, 1)) : '-' }}</td>
@@ -75,7 +75,7 @@
                     </div>
                 </td>
             </tr>
-            @empty
+            @empty 
             <tr>
                 <td colspan="8" class="text-center text-muted py-4">Belum ada data Rekap Pelatihan untuk periode tersebut.</td>
             </tr>
@@ -93,7 +93,7 @@
 </div>
 
 <!-- Render Modals Outside Table -->
-@foreach($trainings as $training)
+@foreach ($trainings as $training)
 <div class="modal fade text-start" id="editTrainingModal{{ $training->id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">

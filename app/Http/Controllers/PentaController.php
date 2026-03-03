@@ -10,39 +10,47 @@ use App\Imports\LowonganKerjaImport;
 use App\Imports\PencariKerjaImport;
 use App\Imports\PenempatanImport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Redirect;
 
 class PentaController extends Controller
 {
     public function lowongan(Request $request)
     {
         $query = LowonganKerja::latest('tanggal_posting');
-        if ($request->filled('bulan')) $query->where('bulan', $request->bulan);
-        if ($request->filled('tahun')) $query->where('tahun', $request->tahun);
+        if ($request->filled('bulan'))
+            $query->where('bulan', $request->bulan);
+        if ($request->filled('tahun'))
+            $query->where('tahun', $request->tahun);
         $lowongans = $query->get();
-        return view('penta.lowongan', compact('lowongans'));
+        return View::make('penta.lowongan', compact('lowongans'));
     }
 
     public function tenagaKerja(Request $request)
     {
         $query = PencariKerja::latest('tanggal_daftar');
-        if ($request->filled('bulan')) $query->where('bulan', $request->bulan);
-        if ($request->filled('tahun')) $query->where('tahun', $request->tahun);
+        if ($request->filled('bulan'))
+            $query->where('bulan', $request->bulan);
+        if ($request->filled('tahun'))
+            $query->where('tahun', $request->tahun);
         $pencaris = $query->get();
-        return view('penta.tenaga_kerja', compact('pencaris'));
+        return View::make('penta.tenaga_kerja', compact('pencaris'));
     }
 
     public function rekap(Request $request)
     {
         $query = Penempatan::latest('tanggal_diterima');
-        if ($request->filled('bulan')) $query->where('bulan', $request->bulan);
-        if ($request->filled('tahun')) $query->where('tahun', $request->tahun);
+        if ($request->filled('bulan'))
+            $query->where('bulan', $request->bulan);
+        if ($request->filled('tahun'))
+            $query->where('tahun', $request->tahun);
         $penempatans = $query->get();
-        return view('penta.rekap', compact('penempatans'));
+        return View::make('penta.rekap', compact('penempatans'));
     }
 
     public function importIndex()
     {
-        return view('penta.import');
+        return View::make('penta.import');
     }
 
     public function importLowongan(Request $request)
@@ -53,7 +61,7 @@ class PentaController extends Controller
             'tahun' => 'required|integer|min:2000|max:2100',
         ]);
         Excel::import(new LowonganKerjaImport($request->bulan, $request->tahun), $request->file('file'));
-        return back()->with('success', 'Data Lowongan Kerja berhasil diimpor!');
+        return Redirect::back()->with('success', 'Data Lowongan Kerja berhasil diimpor!');
     }
 
     public function importPencari(Request $request)
@@ -64,7 +72,7 @@ class PentaController extends Controller
             'tahun' => 'required|integer|min:2000|max:2100',
         ]);
         Excel::import(new PencariKerjaImport($request->bulan, $request->tahun), $request->file('file'));
-        return back()->with('success', 'Data Pencari Kerja Aktif berhasil diimpor!');
+        return Redirect::back()->with('success', 'Data Pencari Kerja Aktif berhasil diimpor!');
     }
 
     public function importPenempatan(Request $request)
@@ -75,7 +83,7 @@ class PentaController extends Controller
             'tahun' => 'required|integer|min:2000|max:2100',
         ]);
         Excel::import(new PenempatanImport($request->bulan, $request->tahun), $request->file('file'));
-        return back()->with('success', 'Data Penempatan berhasil diimpor!');
+        return Redirect::back()->with('success', 'Data Penempatan berhasil diimpor!');
     }
 
     public function updateLowongan(Request $request, $id)
@@ -92,7 +100,7 @@ class PentaController extends Controller
         $lowongan = LowonganKerja::findOrFail($id);
         $lowongan->update($request->all());
 
-        return back()->with('success', 'Data Lowongan Kerja berhasil diperbarui!');
+        return Redirect::back()->with('success', 'Data Lowongan Kerja berhasil diperbarui!');
     }
 
     public function updatePencari(Request $request, $id)
@@ -109,7 +117,7 @@ class PentaController extends Controller
         $pencari = PencariKerja::findOrFail($id);
         $pencari->update($request->all());
 
-        return back()->with('success', 'Data Pencari Kerja Aktif berhasil diperbarui!');
+        return Redirect::back()->with('success', 'Data Pencari Kerja Aktif berhasil diperbarui!');
     }
 
     public function updatePenempatan(Request $request, $id)
@@ -124,27 +132,27 @@ class PentaController extends Controller
         $penempatan = Penempatan::findOrFail($id);
         $penempatan->update($request->all());
 
-        return back()->with('success', 'Data Penempatan berhasil diperbarui!');
+        return Redirect::back()->with('success', 'Data Penempatan berhasil diperbarui!');
     }
 
     public function destroyLowongan($id)
     {
         $lowongan = LowonganKerja::findOrFail($id);
         $lowongan->delete();
-        return back()->with('success', 'Data Lowongan Kerja berhasil dihapus!');
+        return Redirect::back()->with('success', 'Data Lowongan Kerja berhasil dihapus!');
     }
 
     public function destroyPencari($id)
     {
         $pencari = PencariKerja::findOrFail($id);
         $pencari->delete();
-        return back()->with('success', 'Data Pencari Kerja berhasil dihapus!');
+        return Redirect::back()->with('success', 'Data Pencari Kerja berhasil dihapus!');
     }
 
     public function destroyPenempatan($id)
     {
         $penempatan = Penempatan::findOrFail($id);
         $penempatan->delete();
-        return back()->with('success', 'Data Penempatan berhasil dihapus!');
+        return Redirect::back()->with('success', 'Data Penempatan berhasil dihapus!');
     }
 }

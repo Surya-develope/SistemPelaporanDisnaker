@@ -47,7 +47,7 @@
             </tr>
         </thead>
         <tbody>
-            @forelse($lpks as $lpk)
+            @forelse ($lpks as $lpk)
             <tr>
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $lpk->nama_lpk }}</td>
@@ -70,7 +70,7 @@
                     </div>
                 </td>
             </tr>
-            @empty
+            @empty 
             <tr>
                 <td colspan="7" class="text-center">Belum ada data LPK Aktif</td>
             </tr>
@@ -80,7 +80,7 @@
 </div>
 
 <!-- Render Modals Outside Table -->
-@foreach($lpks as $lpk)
+@foreach ($lpks as $lpk)
 <div class="modal fade text-start" id="editLpkModal{{ $lpk->id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
