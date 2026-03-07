@@ -17,7 +17,7 @@ class LattasController extends Controller
     // Data Pelatihan
     public function pelatihan(Request $request)
     {
-        $query = LpkTraining::with('lpk');
+        $query = LpkTraining::query();
 
         if ($request->filled('bulan')) {
             $query->where('bulan', $request->bulan);
@@ -27,13 +27,12 @@ class LattasController extends Controller
         }
 
         $trainings = $query->get();
-        $lpks = Lpk::orderBy('nama_lpk', 'asc')->get();
-        return \Illuminate\Support\Facades\View::make('lattas.pelatihan', compact('trainings', 'lpks'));
+        return \Illuminate\Support\Facades\View::make('lattas.pelatihan', compact('trainings'));
     }
 
     public function exportPelatihan(Request $request)
     {
-        $query = LpkTraining::with('lpk');
+        $query = LpkTraining::query();
         if ($request->filled('bulan')) $query->where('bulan', $request->bulan);
         if ($request->filled('tahun')) $query->where('tahun', $request->tahun);
         $data = $query->get();
@@ -41,7 +40,7 @@ class LattasController extends Controller
         $exportData = [];
         $no = 1;
         foreach ($data as $row) {
-            $namaLpk = $row->lpk ? $row->lpk->nama_lpk : '-';
+            $namaLpk = $row->nama_lpk ? $row->nama_lpk : '-';
             $exportData[] = [
                 $no++, $row->bulan, $row->tahun, $namaLpk, $row->program_pelatihan, $row->jumlah_peserta, $row->jumlah_paket
             ];
@@ -168,10 +167,10 @@ class LattasController extends Controller
         return Redirect::back()->with('success', 'Data LPK berhasil diperbarui!');
     }
 
-    // Update LpkTraining
     public function updateLpkTraining(Request $request, $id)
     {
         $request->validate([
+            'nama_lpk' => 'required|string|max:255',
             'program_pelatihan' => 'required|string|max:255',
             'jumlah_peserta' => 'required|integer|min:0',
             'jumlah_paket' => 'required|integer|min:0',
@@ -180,7 +179,7 @@ class LattasController extends Controller
         ]);
 
         $training = LpkTraining::findOrFail($id);
-        $training->update($request->only('program_pelatihan', 'jumlah_peserta', 'jumlah_paket', 'bulan', 'tahun'));
+        $training->update($request->only('nama_lpk', 'program_pelatihan', 'jumlah_peserta', 'jumlah_paket', 'bulan', 'tahun'));
 
         return Redirect::back()->with('success', 'Data Pelatihan LPK berhasil diperbarui!');
     }
@@ -223,7 +222,7 @@ class LattasController extends Controller
     public function storeLpkTraining(Request $request)
     {
         $request->validate([
-            'lpk_id' => 'required|exists:lpks,id',
+            'nama_lpk' => 'required|string|max:255',
             'program_pelatihan' => 'required|string|max:255',
             'jumlah_peserta' => 'required|integer|min:0',
             'jumlah_paket' => 'required|integer|min:0',

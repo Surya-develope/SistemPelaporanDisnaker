@@ -68,7 +68,7 @@
             <tr>
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $training->bulan ? date('F', mktime(0, 0, 0, $training->bulan, 1)) : '-' }} {{ $training->tahun ?? '' }}</td>
-                <td class="text-start">{{ $training->lpk->nama_lpk ?? '-' }}</td>
+                <td class="text-start">{{ $training->nama_lpk ?? '-' }}</td>
                 <td class="text-start">{{ $training->program_pelatihan }}</td>
                 <td>{{ $training->jumlah_peserta }} Orang</td>
                 <td>{{ $training->jumlah_paket }} Paket</td>
@@ -118,13 +118,8 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">LPK / Lembaga Penyelenggara <span class="text-danger">*</span></label>
-                        <select name="lpk_id" class="form-select" required>
-                            <option value="">-- Pilih LPK --</option>
-                            @foreach($lpks ?? [] as $lpk)
-                                <option value="{{ $lpk->id }}">{{ $lpk->nama_lpk }}</option>
-                            @endforeach
-                        </select>
+                        <label class="form-label">Nama LPK / Lembaga Penyelenggara <span class="text-danger">*</span></label>
+                        <input type="text" name="nama_lpk" class="form-control" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Program Pelatihan <span class="text-danger">*</span></label>
@@ -161,6 +156,10 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nama LPK / Lembaga Penyelenggara</label>
+                        <input type="text" name="nama_lpk" class="form-control" value="{{ $training->nama_lpk }}" required>
+                    </div>
                     <div class="mb-3">
                         <label class="form-label">Program Pelatihan</label>
                         <input type="text" name="program_pelatihan" class="form-control" value="{{ $training->program_pelatihan }}" required>

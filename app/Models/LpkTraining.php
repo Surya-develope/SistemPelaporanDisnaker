@@ -7,16 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class LpkTraining extends Model
 {
     protected $fillable = [
-        'lpk_id',
+        'nama_lpk',
         'program_pelatihan',
         'jumlah_peserta',
         'jumlah_paket',
         'bulan',
         'tahun',
     ];
-
-    public function lpk()
-    {
-        return $this->belongsTo(Lpk::class);
-    }
 }

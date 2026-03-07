@@ -22,22 +22,12 @@ class LpkTrainingImport implements ToModel, WithHeadingRow
             return null;
         }
 
-        // Find the LPK from database to get its ID
-        $lpk = Lpk::where('nama_lpk', $row['nama_lpk'])->first();
-
-        // If LPK doesn't exist, we can create it or skip it. Here we try to create an empty one just in case so the training isn't lost.
-        if (!$lpk) {
-            $lpk = Lpk::create([
-                'nama_lpk' => $row['nama_lpk'],
-            ]);
-        }
-
         // Clean text (e.g. "32 Orang" -> 32)
         $peserta = (int) filter_var($row['jumlah_peserta'] ?? 0, FILTER_SANITIZE_NUMBER_INT);
         $paket = (int) filter_var($row['jumlah_paket'] ?? 0, FILTER_SANITIZE_NUMBER_INT);
 
         return new LpkTraining([
-            'lpk_id'            => $lpk->id,
+            'nama_lpk'          => $row['nama_lpk'],
             'program_pelatihan' => $row['program_pelatihan'] ?? '-',
             'jumlah_peserta'    => $peserta,
             'jumlah_paket'      => $paket,

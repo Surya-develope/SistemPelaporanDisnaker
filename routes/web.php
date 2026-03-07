@@ -87,6 +87,11 @@ Route::middleware(['web', \App\Http\Middleware\RoleMiddleware::class . ':super_a
         }
         );
 
+        Route::get('/dashboard/export', function (\Illuminate\Http\Request $request) {
+            $tahun = $request->query('tahun', date('Y'));
+            return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\DashboardExport($tahun), 'Laporan_Lengkap_Disnaker_'.$tahun.'.xlsx');
+        })->name('dashboard.export');
+
         Route::get('/dashboard/detail/{type}', function ($type, \Illuminate\Http\Request $request) {
             $tahun = $request->query('tahun', date('Y'));
             $data = [];
@@ -156,9 +161,9 @@ Route::middleware(['web', \App\Http\Middleware\RoleMiddleware::class . ':super_a
                     $headers = ['No', 'Nama LPK', 'Nama Pimpinan', 'Alamat', 'Status'];
                     break;
                 case 'pelatihan':
-                    $data = \App\Models\LpkTraining::with('lpk')->where('tahun', $tahun)->latest()->get()->map(function($item) {
+                    $data = \App\Models\LpkTraining::where('tahun', $tahun)->latest()->get()->map(function($item) {
                         return [
-                            'nama' => $item->lpk ? $item->lpk->nama_lpk : '-',
+                            'nama' => $item->nama_lpk ? $item->nama_lpk : '-',
                             'detail_1' => $item->program_pelatihan,
                             'detail_2' => $item->jumlah_peserta . ' Orang',
                             'status' => $item->jumlah_paket . ' Paket'

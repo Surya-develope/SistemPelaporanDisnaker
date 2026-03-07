@@ -15,9 +15,14 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h4 class="m-0 fw-bold">Dashboard Statistik</h4>
-    <button onclick="window.print()" class="btn btn-outline-secondary btn-sm shadow-sm d-print-none">
-        <i class="fa fa-print me-1"></i> Cetak Laporan
-    </button>
+    <div>
+        <a href="{{ route('dashboard.export') }}" class="btn btn-success btn-sm shadow-sm d-print-none me-2">
+            <i class="fa fa-file-excel me-1"></i> Cetak Excel
+        </a>
+        <button onclick="window.print()" class="btn btn-outline-secondary btn-sm shadow-sm d-print-none">
+            <i class="fa fa-print me-1"></i> Cetak Laporan
+        </button>
+    </div>
 </div>
 
 {{-- ===================== BIDANG PENTA ===================== --}}
