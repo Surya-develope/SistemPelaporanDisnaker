@@ -42,6 +42,15 @@
 </div>
 
 <div class="card shadow p-3">
+    <div class="d-flex justify-content-between mb-3">
+        <h6>Daftar Program Pelatihan</h6>
+        <div>
+            <button type="button" class="btn btn-success btn-sm me-2" data-bs-toggle="modal" data-bs-target="#tambahTrainingModal">
+                <i class="fa fa-plus me-1"></i> Tambah Data Manual
+            </button>
+            <a href="{{ route('lattas.import') }}" class="btn btn-primary btn-sm"><i class="fa fa-upload me-1"></i> Import Excel</a>
+        </div>
+    </div>
     <table class="table table-bordered table-striped text-center align-middle">
         <thead class="table-light">
             <tr>
@@ -96,6 +105,50 @@
 </div>
 
 <!-- Render Modals Outside Table -->
+
+<!-- Modal Tambah Pelatihan -->
+<div class="modal fade text-start" id="tambahTrainingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form action="{{ route('lattas.store.training') }}" method="POST">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title">Tambah Data Rekap Pelatihan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">LPK / Lembaga Penyelenggara <span class="text-danger">*</span></label>
+                        <select name="lpk_id" class="form-select" required>
+                            <option value="">-- Pilih LPK --</option>
+                            @foreach($lpks ?? [] as $lpk)
+                                <option value="{{ $lpk->id }}">{{ $lpk->nama_lpk }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Program Pelatihan <span class="text-danger">*</span></label>
+                        <input type="text" name="program_pelatihan" class="form-control" required>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Jumlah Peserta <span class="text-danger">*</span></label>
+                            <input type="number" name="jumlah_peserta" class="form-control" required min="0">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Jumlah Paket <span class="text-danger">*</span></label>
+                            <input type="number" name="jumlah_paket" class="form-control" required min="0">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @foreach ($trainings as $training)
 <div class="modal fade text-start" id="editTrainingModal{{ $training->id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">

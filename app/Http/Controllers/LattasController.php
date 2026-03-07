@@ -27,7 +27,8 @@ class LattasController extends Controller
         }
 
         $trainings = $query->get();
-        return \Illuminate\Support\Facades\View::make('lattas.pelatihan', compact('trainings'));
+        $lpks = Lpk::orderBy('nama_lpk', 'asc')->get();
+        return \Illuminate\Support\Facades\View::make('lattas.pelatihan', compact('trainings', 'lpks'));
     }
 
     public function exportPelatihan(Request $request)
@@ -198,5 +199,42 @@ class LattasController extends Controller
         $training = LpkTraining::findOrFail($id);
         $training->delete();
         return Redirect::back()->with('success', 'Data Pelatihan LPK berhasil dihapus!');
+    }
+
+    public function storeLpk(Request $request)
+    {
+        $request->validate([
+            'nama_lpk' => 'required|string|max:255',
+            'nama_pimpinan' => 'nullable|string|max:255',
+            'tahun_berdiri' => 'nullable|string|max:4',
+            'alamat' => 'nullable|string',
+            'status' => 'required|in:aktif,tidak aktif',
+        ]);
+
+        $data = $request->all();
+        $data['bulan'] = $request->bulan ?? date('n');
+        $data['tahun'] = $request->tahun ?? date('Y');
+
+        Lpk::create($data);
+
+        return Redirect::back()->with('success', 'Data LPK berhasil ditambahkan!');
+    }
+
+    public function storeLpkTraining(Request $request)
+    {
+        $request->validate([
+            'lpk_id' => 'required|exists:lpks,id',
+            'program_pelatihan' => 'required|string|max:255',
+            'jumlah_peserta' => 'required|integer|min:0',
+            'jumlah_paket' => 'required|integer|min:0',
+        ]);
+
+        $data = $request->all();
+        $data['bulan'] = $request->bulan ?? date('n');
+        $data['tahun'] = $request->tahun ?? date('Y');
+
+        LpkTraining::create($data);
+
+        return Redirect::back()->with('success', 'Data Pelatihan LPK berhasil ditambahkan!');
     }
 }

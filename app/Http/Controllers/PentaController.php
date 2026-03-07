@@ -207,4 +207,66 @@ class PentaController extends Controller
         $penempatan->delete();
         return Redirect::back()->with('success', 'Data Penempatan berhasil dihapus!');
     }
+
+    public function storeLowongan(Request $request)
+    {
+        $request->validate([
+            'judul_lowongan' => 'required|string',
+            'perusahaan' => 'required|string',
+            'tipe_pekerjaan' => 'nullable|string',
+            'kuota' => 'required|integer|min:0',
+            'kuota_sisa' => 'required|integer|min:0',
+            'status_lowongan' => 'required|string',
+            'minimal_pendidikan' => 'nullable|string',
+        ]);
+
+        $data = $request->all();
+        $data['bulan'] = $request->bulan ?? date('n');
+        $data['tahun'] = $request->tahun ?? date('Y');
+        $data['tanggal_posting'] = $request->tanggal_posting ?? date('Y-m-d');
+
+        LowonganKerja::create($data);
+
+        return Redirect::back()->with('success', 'Data Lowongan Kerja berhasil ditambahkan!');
+    }
+
+    public function storeTenagaKerja(Request $request)
+    {
+        $request->validate([
+            'nik' => 'required|string',
+            'nama' => 'required|string',
+            'jenis_kelamin' => 'required|in:L,P',
+            'domisili' => 'required|string',
+            'pendidikan_terakhir' => 'nullable|string',
+            'status_verifikasi' => 'required|string',
+        ]);
+
+        $data = $request->all();
+        $data['bulan'] = $request->bulan ?? date('n');
+        $data['tahun'] = $request->tahun ?? date('Y');
+        $data['tanggal_daftar'] = $request->tanggal_daftar ?? date('Y-m-d');
+
+        PencariKerja::create($data);
+
+        return Redirect::back()->with('success', 'Data Pencari Kerja berhasil ditambahkan!');
+    }
+
+    public function storePenempatan(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|string',
+            'judul_lowongan' => 'required|string',
+            'nama_perusahaan' => 'required|string',
+            'pendidikan_terakhir_pelamar' => 'required|string',
+        ]);
+
+        $data = $request->all();
+        $data['bulan'] = $request->bulan ?? date('n');
+        $data['tahun'] = $request->tahun ?? date('Y');
+        $data['tanggal_diterima'] = $request->tanggal_diterima ?? date('Y-m-d');
+
+        Penempatan::create($data);
+
+        return Redirect::back()->with('success', 'Data Penempatan berhasil ditambahkan!');
+    }
 }

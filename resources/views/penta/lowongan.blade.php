@@ -64,6 +64,9 @@
     <div class="d-flex justify-content-between mb-3">
         <h6>Daftar Lowongan Pekerjaan</h6>
         <div>
+            <button type="button" class="btn btn-success btn-sm me-2" data-bs-toggle="modal" data-bs-target="#tambahLowonganModal">
+                <i class="fa fa-plus me-1"></i> Tambah Data Manual
+            </button>
             <a href="{{ route('penta.import') }}" class="btn btn-primary btn-sm"><i class="fa fa-upload me-1"></i> Import Excel</a>
         </div>
     </div>
@@ -134,6 +137,64 @@
 </div>
 
 <!-- Render Modals Outside Table -->
+
+<!-- Modal Tambah Lowongan -->
+<div class="modal fade text-start" id="tambahLowonganModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form action="{{ route('penta.store.lowongan') }}" method="POST">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title">Tambah Lowongan Kerja</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Posisi / Judul <span class="text-danger">*</span></label>
+                            <input type="text" name="judul_lowongan" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Perusahaan <span class="text-danger">*</span></label>
+                            <input type="text" name="perusahaan" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tipe Pekerjaan</label>
+                            <input type="text" name="tipe_pekerjaan" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Pendidikan Minimal</label>
+                            <input type="text" name="minimal_pendidikan" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Kuota Awal <span class="text-danger">*</span></label>
+                            <input type="number" name="kuota" class="form-control" required min="0">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Sisa Kuota <span class="text-danger">*</span></label>
+                            <input type="number" name="kuota_sisa" class="form-control" required min="0">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Status <span class="text-danger">*</span></label>
+                            <select name="status_lowongan" class="form-select" required>
+                                <option value="open">Open / Tersedia</option>
+                                <option value="closed">Closed / Tutup</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @foreach ($lowongans as $loker)
 <!-- Modal Detail Lowongan -->
 <div class="modal fade text-start" id="detailLowonganModal{{ $loker->id }}" tabindex="-1" aria-hidden="true">
