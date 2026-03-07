@@ -5,8 +5,11 @@ use App\Http\Controllers\PentaController;
 
 Route::middleware(['web', \App\Http\Middleware\RoleMiddleware::class . ':admin,penta'])->prefix('penta')->group(function () {
     Route::get('/tenaga-kerja', [PentaController::class , 'tenagaKerja']);
+    Route::get('/tenaga-kerja/export', [PentaController::class , 'exportTenagaKerja'])->name('penta.export.tenaga-kerja');
     Route::get('/lowongan', [PentaController::class , 'lowongan']);
+    Route::get('/lowongan/export', [PentaController::class , 'exportLowongan'])->name('penta.export.lowongan');
     Route::get('/rekap', [PentaController::class , 'rekap']);
+    Route::get('/rekap/export', [PentaController::class , 'exportRekap'])->name('penta.export.rekap');
 
     // Import Data Penta
     Route::prefix('import')->group(function () {

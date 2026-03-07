@@ -12,6 +12,7 @@ use App\Imports\PenempatanImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Redirect;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PentaController extends Controller
 {
@@ -26,6 +27,25 @@ class PentaController extends Controller
         return View::make('penta.lowongan', compact('lowongans'));
     }
 
+    public function exportLowongan(Request $request)
+    {
+        $query = LowonganKerja::latest('tanggal_posting');
+        if ($request->filled('bulan')) $query->where('bulan', $request->bulan);
+        if ($request->filled('tahun')) $query->where('tahun', $request->tahun);
+        $data = $query->get();
+
+        $exportData = [];
+        $no = 1;
+        foreach ($data as $row) {
+            $exportData[] = [
+                $no++, $row->bulan, $row->tahun, $row->judul_lowongan, $row->perusahaan, $row->tipe_pekerjaan, $row->kuota, $row->kuota_sisa, $row->status_lowongan, $row->tanggal_posting
+            ];
+        }
+
+        $headings = ['No', 'Bulan', 'Tahun', 'Judul Lowongan', 'Perusahaan', 'Tipe', 'Kuota', 'Sisa Kuota', 'Status', 'Tanggal Posting'];
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericDataExport($exportData, $headings), 'lowongan_kerja.xlsx');
+    }
+
     public function tenagaKerja(Request $request)
     {
         $query = PencariKerja::latest('tanggal_daftar');
@@ -35,6 +55,25 @@ class PentaController extends Controller
             $query->where('tahun', $request->tahun);
         $pencaris = $query->get();
         return View::make('penta.tenaga_kerja', compact('pencaris'));
+    }
+
+    public function exportTenagaKerja(Request $request)
+    {
+        $query = PencariKerja::latest('tanggal_daftar');
+        if ($request->filled('bulan')) $query->where('bulan', $request->bulan);
+        if ($request->filled('tahun')) $query->where('tahun', $request->tahun);
+        $data = $query->get();
+
+        $exportData = [];
+        $no = 1;
+        foreach ($data as $row) {
+            $exportData[] = [
+                $no++, $row->bulan, $row->tahun, $row->nik, $row->nama_lengkap, $row->jenis_kelamin, $row->pendidikan_terakhir, $row->umur, $row->kategori_keahlian, $row->status_bekerja, $row->tanggal_daftar
+            ];
+        }
+
+        $headings = ['No', 'Bulan', 'Tahun', 'NIK', 'Nama Lengkap', 'Jenis Kelamin', 'Pendidikan', 'Umur', 'Keahlian', 'Status', 'Tanggal Daftar'];
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericDataExport($exportData, $headings), 'pencari_kerja.xlsx');
     }
 
     public function rekap(Request $request)
@@ -48,6 +87,25 @@ class PentaController extends Controller
         return View::make('penta.rekap', compact('penempatans'));
     }
 
+    public function exportRekap(Request $request)
+    {
+        $query = Penempatan::latest('tanggal_diterima');
+        if ($request->filled('bulan')) $query->where('bulan', $request->bulan);
+        if ($request->filled('tahun')) $query->where('tahun', $request->tahun);
+        $data = $query->get();
+
+        $exportData = [];
+        $no = 1;
+        foreach ($data as $row) {
+            $exportData[] = [
+                $no++, $row->bulan, $row->tahun, $row->nik, $row->nama_pekerja, $row->perusahaan, $row->jabatan, $row->status_penempatan, $row->tanggal_diterima
+            ];
+        }
+
+        $headings = ['No', 'Bulan', 'Tahun', 'NIK', 'Nama Pekerja', 'Perusahaan', 'Jabatan', 'Status', 'Tanggal Diterima'];
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericDataExport($exportData, $headings), 'penempatan_kerja.xlsx');
+    }
+
     public function importIndex()
     {
         return View::make('penta.import');
@@ -57,10 +115,8 @@ class PentaController extends Controller
     {
         $request->validate([
             'file' => 'required|mimes:xls,xlsx,csv',
-            'bulan' => 'required|integer|min:1|max:12',
-            'tahun' => 'required|integer|min:2000|max:2100',
         ]);
-        Excel::import(new LowonganKerjaImport($request->bulan, $request->tahun), $request->file('file'));
+        Excel::import(new LowonganKerjaImport(), $request->file('file'));
         return Redirect::back()->with('success', 'Data Lowongan Kerja berhasil diimpor!');
     }
 
@@ -68,10 +124,8 @@ class PentaController extends Controller
     {
         $request->validate([
             'file' => 'required|mimes:xls,xlsx,csv',
-            'bulan' => 'required|integer|min:1|max:12',
-            'tahun' => 'required|integer|min:2000|max:2100',
         ]);
-        Excel::import(new PencariKerjaImport($request->bulan, $request->tahun), $request->file('file'));
+        Excel::import(new PencariKerjaImport(), $request->file('file'));
         return Redirect::back()->with('success', 'Data Pencari Kerja Aktif berhasil diimpor!');
     }
 
@@ -79,10 +133,8 @@ class PentaController extends Controller
     {
         $request->validate([
             'file' => 'required|mimes:xls,xlsx,csv',
-            'bulan' => 'required|integer|min:1|max:12',
-            'tahun' => 'required|integer|min:2000|max:2100',
         ]);
-        Excel::import(new PenempatanImport($request->bulan, $request->tahun), $request->file('file'));
+        Excel::import(new PenempatanImport(), $request->file('file'));
         return Redirect::back()->with('success', 'Data Penempatan berhasil diimpor!');
     }
 

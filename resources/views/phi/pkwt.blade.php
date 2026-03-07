@@ -26,7 +26,7 @@
                 @endfor
             </select>
             <a href="{{ route('phi.export.pkwt', ['bulan' => request('bulan'), 'tahun' => request('tahun')]) }}" class="btn btn-outline-success shadow-sm">
-                <i class="fa fa-download me-1"></i> Export Excel
+                <i class="fa fa-file-excel me-1"></i> Export Excel
             </a>
         </form>
 

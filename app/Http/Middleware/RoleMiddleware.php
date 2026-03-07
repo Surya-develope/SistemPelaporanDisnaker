@@ -15,11 +15,11 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if (!$request->session()->has('role')) {
+        if (!\Illuminate\Support\Facades\Auth::check()) {
             return \Illuminate\Support\Facades\Redirect::to('/login');
         }
 
-        if (!empty($roles) && !in_array($request->session()->get('role'), $roles)) {
+        if (!empty($roles) && !in_array(\Illuminate\Support\Facades\Auth::user()->role, $roles)) {
             \abort(403);
         }
 

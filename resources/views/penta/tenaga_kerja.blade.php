@@ -55,6 +55,11 @@
             <a href="{{ url('/penta/tenaga-kerja') }}" class="btn btn-outline-secondary w-100">Reset</a>
         </div>
         @endif
+        <div class="col-md-auto ms-auto">
+            <a href="{{ route('penta.export.tenaga-kerja', ['bulan' => request('bulan'), 'tahun' => request('tahun')]) }}" class="btn btn-success">
+                <i class="fa fa-file-excel me-1"></i> Export Excel
+            </a>
+        </div>
     </form>
 </div>
 

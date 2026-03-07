@@ -26,9 +26,17 @@
                 @endfor
             </select>
             <button type="submit" class="btn btn-outline-primary">Filter</button>
+            @if(request('bulan') || request('tahun'))
+                <a href="{{ url('/phi/pengaduan') }}" class="btn btn-outline-secondary">Reset</a>
+            @endif
         </form>
 
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahPengaduan">+ Tambah Data</button>
+        <div class="d-flex gap-2">
+            <a href="{{ route('phi.export.pengaduan', ['bulan' => request('bulan'), 'tahun' => request('tahun')]) }}" class="btn btn-success">
+                <i class="fa fa-file-excel me-1"></i> Export Excel
+            </a>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahPengaduan">+ Tambah Data</button>
+        </div>
     </div>
 
     <div class="table-responsive">

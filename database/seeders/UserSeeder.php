@@ -15,6 +15,7 @@ class UserSeeder extends Seeder
             ['name' => 'Petugas PENTA', 'email' => 'penta@disnaker.go.id', 'username' => 'penta', 'role' => 'penta'],
             ['name' => 'Petugas PHI', 'email' => 'phi@disnaker.go.id', 'username' => 'phi', 'role' => 'phi'],
             ['name' => 'Petugas LATTAS', 'email' => 'lattas@disnaker.go.id', 'username' => 'lattas', 'role' => 'lattas'],
+            ['name' => 'Kepala Dinas', 'email' => 'kadis@disnaker.go.id', 'username' => 'kadis', 'role' => 'pejabat'],
         ];
 
         foreach ($users as $u) {
@@ -22,6 +23,7 @@ class UserSeeder extends Seeder
             ['email' => $u['email']],
             [
                 'name' => $u['name'],
+                'username' => $u['username'],
                 'password' => Hash::make('123'),
                 'role' => $u['role']
             ]

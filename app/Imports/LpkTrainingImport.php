@@ -9,14 +9,6 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class LpkTrainingImport implements ToModel, WithHeadingRow
 {
-    protected $bulan;
-    protected $tahun;
-
-    public function __construct($bulan, $tahun)
-    {
-        $this->bulan = $bulan;
-        $this->tahun = $tahun;
-    }
 
     /**
     * @param array $row
@@ -26,17 +18,17 @@ class LpkTrainingImport implements ToModel, WithHeadingRow
     public function model(array $row)
     {
         // Skip if LPK name is empty
-        if (empty($row['nama_lpklembaga'])) {
+        if (empty($row['nama_lpk'])) {
             return null;
         }
 
         // Find the LPK from database to get its ID
-        $lpk = Lpk::where('nama_lpk', $row['nama_lpklembaga'])->first();
+        $lpk = Lpk::where('nama_lpk', $row['nama_lpk'])->first();
 
         // If LPK doesn't exist, we can create it or skip it. Here we try to create an empty one just in case so the training isn't lost.
         if (!$lpk) {
             $lpk = Lpk::create([
-                'nama_lpk' => $row['nama_lpklembaga'],
+                'nama_lpk' => $row['nama_lpk'],
             ]);
         }
 
@@ -46,11 +38,11 @@ class LpkTrainingImport implements ToModel, WithHeadingRow
 
         return new LpkTraining([
             'lpk_id'            => $lpk->id,
-            'program_pelatihan' => $row['program_pelatihan_porglat'] ?? $row['program_pelatihan'] ?? '-',
+            'program_pelatihan' => $row['program_pelatihan'] ?? '-',
             'jumlah_peserta'    => $peserta,
             'jumlah_paket'      => $paket,
-            'bulan'             => $this->bulan,
-            'tahun'             => $this->tahun,
+            'bulan'             => $row['bulan'] ?? date('n'),
+            'tahun'             => $row['tahun'] ?? date('Y'),
         ]);
     }
 }

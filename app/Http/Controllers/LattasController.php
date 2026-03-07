@@ -10,6 +10,7 @@ use App\Models\LpkTraining;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Redirect;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class LattasController extends Controller
 {
@@ -29,6 +30,26 @@ class LattasController extends Controller
         return \Illuminate\Support\Facades\View::make('lattas.pelatihan', compact('trainings'));
     }
 
+    public function exportPelatihan(Request $request)
+    {
+        $query = LpkTraining::with('lpk');
+        if ($request->filled('bulan')) $query->where('bulan', $request->bulan);
+        if ($request->filled('tahun')) $query->where('tahun', $request->tahun);
+        $data = $query->get();
+
+        $exportData = [];
+        $no = 1;
+        foreach ($data as $row) {
+            $namaLpk = $row->lpk ? $row->lpk->nama_lpk : '-';
+            $exportData[] = [
+                $no++, $row->bulan, $row->tahun, $namaLpk, $row->program_pelatihan, $row->jumlah_peserta, $row->jumlah_paket
+            ];
+        }
+
+        $headings = ['No', 'Bulan', 'Tahun', 'Nama LPK', 'Program Pelatihan', 'Jumlah Peserta', 'Jumlah Paket'];
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericDataExport($exportData, $headings), 'program_pelatihan.xlsx');
+    }
+
     // Rekap LPK Aktif
     public function lpkAktif(Request $request)
     {
@@ -43,6 +64,25 @@ class LattasController extends Controller
 
         $lpks = $query->get();
         return \Illuminate\Support\Facades\View::make('lattas.lpk_aktif', compact('lpks'));
+    }
+
+    public function exportLpkAktif(Request $request)
+    {
+        $query = Lpk::where('status', 'aktif');
+        if ($request->filled('bulan')) $query->where('bulan', $request->bulan);
+        if ($request->filled('tahun')) $query->where('tahun', $request->tahun);
+        $data = $query->get();
+
+        $exportData = [];
+        $no = 1;
+        foreach ($data as $row) {
+            $exportData[] = [
+                $no++, $row->nama_lpk, $row->nama_pimpinan, $row->tahun_berdiri, $row->alamat, $row->status
+            ];
+        }
+
+        $headings = ['No', 'Nama LPK', 'Pimpinan', 'Tahun Berdiri', 'Alamat', 'Status'];
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericDataExport($exportData, $headings), 'lpk_aktif.xlsx');
     }
 
     // Rekap LPK Non Aktif
@@ -61,6 +101,25 @@ class LattasController extends Controller
         return \Illuminate\Support\Facades\View::make('lattas.lpk_nonaktif', compact('lpks'));
     }
 
+    public function exportLpkNonaktif(Request $request)
+    {
+        $query = Lpk::where('status', 'tidak aktif');
+        if ($request->filled('bulan')) $query->where('bulan', $request->bulan);
+        if ($request->filled('tahun')) $query->where('tahun', $request->tahun);
+        $data = $query->get();
+
+        $exportData = [];
+        $no = 1;
+        foreach ($data as $row) {
+            $exportData[] = [
+                $no++, $row->nama_lpk, $row->nama_pimpinan, $row->tahun_berdiri, $row->alamat, $row->status
+            ];
+        }
+
+        $headings = ['No', 'Nama LPK', 'Pimpinan', 'Tahun Berdiri', 'Alamat', 'Status'];
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericDataExport($exportData, $headings), 'lpk_tidak_aktif.xlsx');
+    }
+
     // Muka halaman form upload
     public function index()
     {
@@ -72,11 +131,9 @@ class LattasController extends Controller
     {
         $request->validate([
             'file' => 'required|mimes:xls,xlsx,csv',
-            'bulan' => 'required|integer|min:1|max:12',
-            'tahun' => 'required|integer|min:2000|max:2100',
         ]);
 
-        Excel::import(new LpkImport($request->bulan, $request->tahun), $request->file('file'));
+        Excel::import(new LpkImport(), $request->file('file'));
 
         return Redirect::back()->with('success', 'Data Master LPK berhasil diimpor!');
     }
@@ -86,11 +143,9 @@ class LattasController extends Controller
     {
         $request->validate([
             'file' => 'required|mimes:xls,xlsx,csv',
-            'bulan' => 'required|integer|min:1|max:12',
-            'tahun' => 'required|integer|min:2000|max:2100',
         ]);
 
-        Excel::import(new LpkTrainingImport($request->bulan, $request->tahun), $request->file('file'));
+        Excel::import(new LpkTrainingImport(), $request->file('file'));
 
         return Redirect::back()->with('success', 'Data Pelatihan LPK berhasil diimpor!');
     }

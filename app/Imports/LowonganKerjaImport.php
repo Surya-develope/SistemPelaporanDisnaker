@@ -8,14 +8,6 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class LowonganKerjaImport implements ToModel, WithHeadingRow
 {
-    protected $bulan;
-    protected $tahun;
-
-    public function __construct($bulan, $tahun)
-    {
-        $this->bulan = $bulan;
-        $this->tahun = $tahun;
-    }
 
     public function model(array $row)
     {
@@ -47,8 +39,8 @@ class LowonganKerjaImport implements ToModel, WithHeadingRow
             'status_lowongan'       => $row['status_lowongan'] ?? 'open',
             'tanggal_posting'       => isset($row['tanggal_posting']) && strtotime($row['tanggal_posting']) ? date('Y-m-d', strtotime($row['tanggal_posting'])) : null,
             'tanggal_kadaluwarsa'   => isset($row['tanggal_kadaluwarsa']) && strtotime($row['tanggal_kadaluwarsa']) ? date('Y-m-d H:i:s', strtotime($row['tanggal_kadaluwarsa'])) : null,
-            'bulan'                 => $this->bulan,
-            'tahun'                 => $this->tahun,
+            'bulan'                 => $row['bulan'] ?? date('n'),
+            'tahun'                 => $row['tahun'] ?? date('Y'),
         ]);
     }
 }

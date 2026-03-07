@@ -8,14 +8,6 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class LpkImport implements ToModel, WithHeadingRow
 {
-    protected $bulan;
-    protected $tahun;
-
-    public function __construct($bulan, $tahun)
-    {
-        $this->bulan = $bulan;
-        $this->tahun = $tahun;
-    }
 
     /**
     * @param array $row
@@ -24,21 +16,30 @@ class LpkImport implements ToModel, WithHeadingRow
     */
     public function model(array $row)
     {
-        // Skip if the 'nama_lpks' column is empty
-        if (empty($row['nama_lpks'])) {
+        // Skip if the 'nama_lpk' column is empty
+        if (empty($row['nama_lpk'])) {
             return null;
+        }
+
+        // Sanitize tahun_berdiri to be a valid year or null
+        $tahun_berdiri = null;
+        if (!empty($row['tahun_berdiri'])) {
+            $cleaned = filter_var($row['tahun_berdiri'], FILTER_SANITIZE_NUMBER_INT);
+            if (!empty($cleaned)) {
+                $tahun_berdiri = (int) $cleaned;
+            }
         }
 
         // We use updateOrCreate to prevent duplicates based on the LPK Name
         return Lpk::updateOrCreate(
-            ['nama_lpk' => $row['nama_lpks']], // Find by 'nama_lpks' header
+            ['nama_lpk' => $row['nama_lpk']], // Find by 'nama_lpk' header
             [
                 'nama_pimpinan' => $row['nama_pimpinan'] ?? null,
-                'tahun_berdiri' => $row['tahun_berdiri'] ?? null,
+                'tahun_berdiri' => $tahun_berdiri,
                 'alamat'        => $row['alamat'] ?? null,
                 'status'        => 'aktif', // default assumed active unless otherwise specified
-                'bulan'         => $this->bulan,
-                'tahun'         => $this->tahun,
+                'bulan'         => (int) ($row['bulan'] ?? date('n')),
+                'tahun'         => (int) ($row['tahun'] ?? date('Y')),
             ]
         );
     }

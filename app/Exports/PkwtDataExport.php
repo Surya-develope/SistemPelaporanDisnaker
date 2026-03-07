@@ -7,8 +7,11 @@ use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\Exportable;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class PkwtDataExport implements FromQuery, WithHeadings, WithMapping
+class PkwtDataExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
 {
     use Exportable;
 
@@ -69,6 +72,13 @@ class PkwtDataExport implements FromQuery, WithHeadings, WithMapping
             $row->jabatan,
             $row->masa_kontrak,
             $row->keterangan,
+        ];
+    }
+
+    public function styles(Worksheet $sheet)
+    {
+        return [
+            1    => ['font' => ['bold' => true]], // Make header row bold
         ];
     }
 }

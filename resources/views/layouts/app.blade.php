@@ -139,7 +139,7 @@
         }
         .submenu a:hover {
             padding-left: 44px;
-            color: #e2e8f0;
+            color: #fff;
             border-left-color: rgba(59,130,246,.25);
         }
         .submenu a.active {
@@ -272,7 +272,9 @@
 </head>
 <body>
 
-@php $role = session('role'); @endphp
+@php
+    $role = \Illuminate\Support\Facades\Auth::check() ? \Illuminate\Support\Facades\Auth::user()->role : null;
+@endphp
 
 <!-- Mobile overlay -->
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
@@ -374,6 +376,14 @@
                 </a>
             </div>
         </div>
+        @endif
+
+        {{-- ── KELOLA PENGGUNA ── --}}
+        @if($role === 'admin')
+        <div class="sidebar-label" style="margin-top: 15px;">Pengaturan</div>
+        <a href="{{ route('users.index') }}" class="{{ request()->is('users') ? 'active' : '' }}">
+            <i class="fa fa-users-cog"></i> Kelola Pengguna
+        </a>
         @endif
 
     </nav>

@@ -168,27 +168,14 @@
         <div class="import-card-body">
             <div class="format-hint">
                 <i class="fa-solid fa-circle-info me-1"></i>
-                Format kolom (Baris 1): <code>judul_lowongan</code>, <code>perusahaan</code>, <code>kuota</code>, <code>status_lowongan</code> dan kolom relevan lainnya.
+                Format kolom (Baris 1): <code>judul_lowongan</code>, <code>perusahaan</code>, <code>kuota</code>, <code>status_lowongan</code>, <code>bulan</code>, <code>tahun</code>
             </div>
             <a href="{{ asset('storage/template_lowongan_penta.xlsx') }}" class="btn-download">
                 <i class="fa-solid fa-download"></i> Download Template Lowongan
             </a>
             <form action="{{ route('penta.import.lowongan') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <div class="row mb-3">
-                    <div class="col-6">
-                        <label class="form-label">Bulan</label>
-                        <select name="bulan" class="form-select" required>
-                            @for($i=1; $i<=12; $i++)
-                                <option value="{{ $i }}" {{ date('n') == $i ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $i, 1)) }}</option>
-                            @endfor
-                        </select>
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label">Tahun</label>
-                        <input type="number" name="tahun" class="form-control" value="{{ date('Y') }}" required min="2000" max="2100">
-                    </div>
-                </div>
+
                 <label class="form-label">File Excel</label>
                 <input type="file" name="file" class="form-control" required accept=".xls,.xlsx,.csv">
                 <button class="btn-import" type="submit">
@@ -210,27 +197,14 @@
         <div class="import-card-body">
             <div class="format-hint">
                 <i class="fa-solid fa-circle-info me-1"></i>
-                Format kolom (Baris 1): <code>nik</code>, <code>nama</code>, <code>jenis_kelamin</code>, <code>pendidikan_terakhir</code>, <code>status_verifikasi</code> dan lain-lain.
+                Format kolom (Baris 1): <code>nik</code>, <code>nama</code>, <code>jenis_kelamin</code>, <code>pendidikan_terakhir</code>, <code>status_verifikasi</code>, <code>bulan</code>, <code>tahun</code>
             </div>
             <a href="{{ asset('storage/template_pencari_penta.xlsx') }}" class="btn-download">
                 <i class="fa-solid fa-download"></i> Download Template Pencari Kerja
             </a>
             <form action="{{ route('penta.import.pencari') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <div class="row mb-3">
-                    <div class="col-6">
-                        <label class="form-label">Bulan</label>
-                        <select name="bulan" class="form-select" required>
-                            @for($i=1; $i<=12; $i++)
-                                <option value="{{ $i }}" {{ date('n') == $i ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $i, 1)) }}</option>
-                            @endfor
-                        </select>
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label">Tahun</label>
-                        <input type="number" name="tahun" class="form-control" value="{{ date('Y') }}" required min="2000" max="2100">
-                    </div>
-                </div>
+
                 <label class="form-label">File Excel</label>
                 <input type="file" name="file" class="form-control" required accept=".xls,.xlsx,.csv">
                 <button class="btn-import" type="submit">
@@ -252,27 +226,14 @@
         <div class="import-card-body">
             <div class="format-hint">
                 <i class="fa-solid fa-circle-info me-1"></i>
-                Format kolom (Baris 1): <code>nama</code>, <code>nama_perusahaan</code>, <code>judul_lowongan</code>, <code>tanggal_diterima</code> dan lain-lain.
+                Format kolom (Baris 1): <code>nama</code>, <code>nama_perusahaan</code>, <code>judul_lowongan</code>, <code>tanggal_diterima</code>, <code>bulan</code>, <code>tahun</code>
             </div>
             <a href="{{ asset('storage/template_penempatan_penta.xlsx') }}" class="btn-download">
                 <i class="fa-solid fa-download"></i> Download Template Penempatan
             </a>
             <form action="{{ route('penta.import.penempatan') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <div class="row mb-3">
-                    <div class="col-6">
-                        <label class="form-label">Bulan</label>
-                        <select name="bulan" class="form-select" required>
-                            @for($i=1; $i<=12; $i++)
-                                <option value="{{ $i }}" {{ date('n') == $i ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $i, 1)) }}</option>
-                            @endfor
-                        </select>
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label">Tahun</label>
-                        <input type="number" name="tahun" class="form-control" value="{{ date('Y') }}" required min="2000" max="2100">
-                    </div>
-                </div>
+
                 <label class="form-label">File Excel</label>
                 <input type="file" name="file" class="form-control" required accept=".xls,.xlsx,.csv">
                 <button class="btn-import" type="submit">

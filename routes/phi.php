@@ -15,6 +15,7 @@ Route::middleware(['web', \App\Http\Middleware\RoleMiddleware::class . ':admin,p
 
     // Rekap Pengaduan Kasus
     Route::get('/pengaduan', [PhiController::class , 'pengaduan']);
+    Route::get('/pengaduan/export', [PhiController::class , 'exportPengaduan'])->name('phi.export.pengaduan');
     Route::post('/pengaduan', [PhiController::class , 'storePengaduan'])->name('phi.store.pengaduan');
     Route::put('/pengaduan/{id}', [PhiController::class , 'updatePengaduan'])->name('phi.update.pengaduan');
     Route::delete('/pengaduan/{id}', [PhiController::class , 'destroyPengaduan'])->name('phi.destroy.pengaduan');

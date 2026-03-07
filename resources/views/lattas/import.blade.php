@@ -141,7 +141,7 @@
 <div class="import-page">
 
     <p class="import-page-title"><i class="fa-solid fa-file-import me-2 text-primary"></i>Import Data Rekap LPK</p>
-    <p class="import-page-subtitle">Upload file Excel (.xlsx/.xls/.csv) untuk memperbarui data Bidang Lattas (Lembaga Pelatihan Kerja).</p>
+    <p class="import-page-subtitle">Upload file Excel (.xlsx/.xls/.csv) untuk memperbarui data Bidang Lattas</p>
 
     @if(session('success'))
         <div class="alert-modern success">
@@ -161,38 +161,25 @@
         <div class="import-card-header">
             <div class="icon-wrap"><i class="fa-solid fa-building"></i></div>
             <div>
-                <h6>Import Master LPK</h6>
+                <h6>Import LPK</h6>
                 <small>Data lembaga pelatihan kerja aktif maupun non-aktif</small>
             </div>
         </div>
         <div class="import-card-body">
             <div class="format-hint">
                 <i class="fa-solid fa-circle-info me-1"></i>
-                Format kolom (Baris 1): <code>nama_lpks</code>, <code>nama_pimpinan</code>, <code>tahun_berdiri</code>, <code>alamat</code>
+                Format kolom (Baris 1): <code>Nama LPK</code>, <code>Nama Pimpinan</code>, <code>Tahun Berdiri</code>, <code>Alamat</code>, <code>Bulan</code>, <code>Tahun</code>
             </div>
             <a href="{{ asset('storage/template_master_lpk.xlsx') }}" class="btn-download">
                 <i class="fa-solid fa-download"></i> Download Template LPK
             </a>
             <form action="{{ route('lattas.import.master') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <div class="row mb-3">
-                    <div class="col-6">
-                        <label class="form-label">Bulan</label>
-                        <select name="bulan" class="form-select" required>
-                            @for($i=1; $i<=12; $i++)
-                                <option value="{{ $i }}" {{ date('n') == $i ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $i, 1)) }}</option>
-                            @endfor
-                        </select>
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label">Tahun</label>
-                        <input type="number" name="tahun" class="form-control" value="{{ date('Y') }}" required min="2000" max="2100">
-                    </div>
-                </div>
+
                 <label class="form-label">File Excel</label>
                 <input type="file" name="file" class="form-control" required accept=".xls,.xlsx,.csv">
                 <button class="btn-import" type="submit">
-                    <i class="fa-solid fa-upload"></i> Import Master LPK
+                    <i class="fa-solid fa-upload"></i> Import LPK
                 </button>
             </form>
         </div>
@@ -210,27 +197,14 @@
         <div class="import-card-body">
             <div class="format-hint">
                 <i class="fa-solid fa-circle-info me-1"></i>
-                Format kolom (Baris 1): <code>nama_lpklembaga</code>, <code>program_pelatihan_porglat</code>, <code>jumlah_peserta</code>, <code>jumlah_paket</code>
+                Format kolom (Baris 1): <code>Nama LPK</code>, <code>Program Pelatihan</code>, <code>Jumlah Peserta</code>, <code>Jumlah Paket</code>, <code>Bulan</code>, <code>Tahun</code>
             </div>
             <a href="{{ asset('storage/template_training_lpk.xlsx') }}" class="btn-download">
                 <i class="fa-solid fa-download"></i> Download Template Pelatihan
             </a>
             <form action="{{ route('lattas.import.training') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <div class="row mb-3">
-                    <div class="col-6">
-                        <label class="form-label">Bulan</label>
-                        <select name="bulan" class="form-select" required>
-                            @for($i=1; $i<=12; $i++)
-                                <option value="{{ $i }}" {{ date('n') == $i ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $i, 1)) }}</option>
-                            @endfor
-                        </select>
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label">Tahun</label>
-                        <input type="number" name="tahun" class="form-control" value="{{ date('Y') }}" required min="2000" max="2100">
-                    </div>
-                </div>
+
                 <label class="form-label">File Excel</label>
                 <input type="file" name="file" class="form-control" required accept=".xls,.xlsx,.csv">
                 <button class="btn-import" type="submit">

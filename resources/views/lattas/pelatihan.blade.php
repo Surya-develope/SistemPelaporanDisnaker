@@ -33,6 +33,11 @@
             <a href="{{ url('/lattas/pelatihan') }}" class="btn btn-outline-secondary w-100">Reset</a>
         </div>
         @endif
+        <div class="col-md-auto ms-auto">
+            <a href="{{ route('lattas.export.pelatihan', ['bulan' => request('bulan'), 'tahun' => request('tahun')]) }}" class="btn btn-success">
+                <i class="fa fa-file-excel me-1"></i> Export Excel
+            </a>
+        </div>
     </form>
 </div>
 
@@ -41,8 +46,7 @@
         <thead class="table-light">
             <tr>
                 <th width="5%">No</th>
-                <th width="10%">Bulan</th>
-                <th width="10%">Tahun</th>
+                <th width="15%">Bulan / Tahun</th>
                 <th>Nama LPK/Lembaga</th>
                 <th>Program Pelatihan (PORGLAT)</th>
                 <th>Jumlah Peserta</th>
@@ -54,8 +58,7 @@
             @forelse ($trainings as $training)
             <tr>
                 <td>{{ $loop->iteration }}</td>
-                <td>{{ $training->bulan ? date('F', mktime(0, 0, 0, $training->bulan, 1)) : '-' }}</td>
-                <td>{{ $training->tahun ?? '-' }}</td>
+                <td>{{ $training->bulan ? date('F', mktime(0, 0, 0, $training->bulan, 1)) : '-' }} {{ $training->tahun ?? '' }}</td>
                 <td class="text-start">{{ $training->lpk->nama_lpk ?? '-' }}</td>
                 <td class="text-start">{{ $training->program_pelatihan }}</td>
                 <td>{{ $training->jumlah_peserta }} Orang</td>
@@ -83,7 +86,7 @@
         </tbody>
         <tfoot class="table-group-divider fw-bold bg-light">
             <tr>
-                <td colspan="5" class="text-end">JUMLAH TOTAL</td>
+                <td colspan="4" class="text-end">JUMLAH TOTAL</td>
                 <td>{{ $trainings->sum('jumlah_peserta') }} Orang</td>
                 <td>{{ $trainings->sum('jumlah_paket') }} Paket</td>
                 <td></td>

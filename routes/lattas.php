@@ -6,10 +6,13 @@ use App\Http\Controllers\LattasController;
 Route::middleware(['web', \App\Http\Middleware\RoleMiddleware::class . ':admin,lattas'])->prefix('lattas')->group(function () {
     // Data Pelatihan
     Route::get('/pelatihan', [LattasController::class , 'pelatihan']);
+    Route::get('/pelatihan/export', [LattasController::class , 'exportPelatihan'])->name('lattas.export.pelatihan');
 
     // Rekap LPK
     Route::get('/lpk-aktif', [LattasController::class , 'lpkAktif']);
+    Route::get('/lpk-aktif/export', [LattasController::class , 'exportLpkAktif'])->name('lattas.export.lpk_aktif');
     Route::get('/lpk-nonaktif', [LattasController::class , 'lpkNonaktif']);
+    Route::get('/lpk-nonaktif/export', [LattasController::class , 'exportLpkNonaktif'])->name('lattas.export.lpk_nonaktif');
 
     // Import Rekap Data LPK dari Excel
     Route::prefix('import')->group(function () {

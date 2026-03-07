@@ -145,6 +145,25 @@ class PhiController extends Controller
         return View::make('phi.pengaduan', compact('pengaduans'));
     }
 
+    public function exportPengaduan(Request $request)
+    {
+        $query = PhiReport::latest();
+        if ($request->filled('bulan')) $query->where('bulan', $request->bulan);
+        if ($request->filled('tahun')) $query->where('tahun', $request->tahun);
+        $data = $query->get();
+
+        $exportData = [];
+        $no = 1;
+        foreach ($data as $row) {
+            $exportData[] = [
+                $no++, $row->bulan, $row->tahun, $row->sisa_bulan_lalu, $row->kasus_masuk, $row->selesai_bipartit, $row->selesai_pb, $row->selesai_anjuran, $row->selesai_lainnya, $row->sisa_kasus_akhir, $row->created_at
+            ];
+        }
+
+        $headings = ['No', 'Bulan', 'Tahun', 'Sisa Bulan Lalu', 'Kasus Masuk', 'Selesai Bipartit', 'Selesai PB', 'Selesai Anjuran', 'Selesai Lainnya', 'Sisa Kasus Akhir', 'Tanggal Dibuat'];
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericDataExport($exportData, $headings), 'pengaduan_kasus_phi.xlsx');
+    }
+
     public function storePengaduan(Request $request)
     {
         $request->validate([
