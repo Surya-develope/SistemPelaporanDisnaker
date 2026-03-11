@@ -7,19 +7,22 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class PkwtTemplateExport implements WithHeadings, WithStyles, ShouldAutoSize
+class PeraturanPerusahaanTemplateExport implements WithHeadings, WithStyles, ShouldAutoSize
 {
     public function headings(): array
     {
         return [
-            'NOMOR PENCATATAN',
             'NAMA PERUSAHAAN',
-            'ALAMAT PIMPINAN',
-            'NAMA PEKERJA',
-            'JUMLAH',
-            'JABATAN',
-            'MASA KONTRAK',
-            'KETERANGAN'
+            'SEKTOR USAHA',
+            'ALAMAT DAN PIMPINAN',
+            'PEKERJA LAKI LAKI',
+            'PEKERJA PEREMPUAN',
+            'STATUS PP',
+            'NOMOR SK PP',
+            'PP KE',
+            'MASA BERLAKU MULAI',
+            'MASA BERLAKU BERAKHIR',
+            'KETERANGAN TAMBAHAN'
         ];
     }
 

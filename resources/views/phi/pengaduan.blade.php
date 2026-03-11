@@ -11,7 +11,7 @@
 <div class="card card-modern p-4 shadow-sm">
     <div class="d-flex justify-content-between mb-3 align-items-center">
         <form method="GET" action="{{ url('/phi/pengaduan') }}" class="d-flex gap-2">
-            <select name="bulan" class="form-select w-auto">
+            <select name="bulan" class="form-select w-auto shadow-sm border-primary-subtle" onchange="this.form.submit()">
                 <option value="">Semua Bulan</option>
                 @foreach (range(1, 12) as $m)
                     <option value="{{ $m }}" {{ request('bulan') == $m ? 'selected' : '' }}>
@@ -19,23 +19,21 @@
                     </option>
                 @endforeach
             </select>
-            <select name="tahun" class="form-select w-auto">
+            <select name="tahun" class="form-select w-auto shadow-sm border-primary-subtle" onchange="this.form.submit()">
                 <option value="">Semua Tahun</option>
                 @for ($y = date('Y'); $y >= 2020; $y--)
                     <option value="{{ $y }}" {{ request('tahun') == $y ? 'selected' : '' }}>{{ $y }}</option>
                 @endfor
             </select>
-            <button type="submit" class="btn btn-outline-primary">Filter</button>
-            @if(request('bulan') || request('tahun'))
-                <a href="{{ url('/phi/pengaduan') }}" class="btn btn-outline-secondary">Reset</a>
-            @endif
+            <a href="{{ route('phi.export.pengaduan', ['bulan' => request('bulan'), 'tahun' => request('tahun')]) }}" class="btn btn-outline-success shadow-sm">
+                <i class="fa fa-file-excel me-1"></i> Export Excel
+            </a>
         </form>
 
         <div class="d-flex gap-2">
-            <a href="{{ route('phi.export.pengaduan', ['bulan' => request('bulan'), 'tahun' => request('tahun')]) }}" class="btn btn-success">
-                <i class="fa fa-file-excel me-1"></i> Export Excel
-            </a>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahPengaduan">+ Tambah Data</button>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahPengaduan">
+                <i class="fa fa-plus me-1"></i> Tambah Manual
+            </button>
         </div>
     </div>
 
