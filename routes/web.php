@@ -27,7 +27,12 @@ Route::middleware(['web', \App\Http\Middleware\RoleMiddleware::class . ':super_a
             // === BIDANG PHI ===
             $totalLaporanPkwt = \App\Models\PkwtReport::count();
             $totalPekerjaKwt = \App\Models\PkwtReport::sum('total_pekerja');
+            $totalPerusahaanPP = \App\Models\PhiPeraturanPerusahaan::count();
             $totalKasusPhi = \App\Models\PhiReport::sum('kasus_masuk');
+            
+            // Hitung Tingkat Penyelesaian Kasus
+            $totalKasusSelesai = \App\Models\PhiReport::sum('selesai_bipartit') + \App\Models\PhiReport::sum('selesai_pb') + \App\Models\PhiReport::sum('selesai_anjuran') + \App\Models\PhiReport::sum('selesai_lainnya');
+            $tingkatPenyelesaianPhi = $totalKasusPhi > 0 ? round(($totalKasusSelesai / $totalKasusPhi) * 100, 1) : 0;
 
             // === BIDANG LATTAS ===
             $totalLpkAktif = \App\Models\Lpk::where('status', 'aktif')->count();
@@ -53,6 +58,10 @@ Route::middleware(['web', \App\Http\Middleware\RoleMiddleware::class . ':super_a
                 ->where('tahun', $tahun)->groupBy('bulan')->pluck('total', 'bulan');
             $kasusPhiBulanan = \App\Models\PhiReport::selectRaw('bulan, SUM(kasus_masuk) as total')
                 ->where('tahun', $tahun)->groupBy('bulan')->pluck('total', 'bulan');
+            $perusahaanPPBulanan = \App\Models\PhiPeraturanPerusahaan::selectRaw('bulan, COUNT(*) as total')
+                ->where('tahun', $tahun)->groupBy('bulan')->pluck('total', 'bulan');
+            $kasusDiselesaikanBulanan = \App\Models\PhiReport::selectRaw('bulan, SUM(selesai_bipartit + selesai_pb + selesai_anjuran + selesai_lainnya) as total')
+                ->where('tahun', $tahun)->groupBy('bulan')->pluck('total', 'bulan');
 
             // Lattas
             $pelatihanBulanan = \App\Models\LpkTraining::selectRaw('bulan, COUNT(*) as total')
@@ -69,9 +78,13 @@ Route::middleware(['web', \App\Http\Middleware\RoleMiddleware::class . ':super_a
                 'pencariKerja' => collect(range(1, 12))->map(fn($m) => (int)($pencariKerjaBulanan[$m] ?? 0))->values()->toArray(),
                 'lowongan' => collect(range(1, 12))->map(fn($m) => (int)($lowonganBulanan[$m] ?? 0))->values()->toArray(),
                 'penempatan' => collect(range(1, 12))->map(fn($m) => (int)($penempatanBulanan[$m] ?? 0))->values()->toArray(),
+                
                 'laporanPkwt' => collect(range(1, 12))->map(fn($m) => (int)($laporanPkwtBulanan[$m] ?? 0))->values()->toArray(),
                 'pekerjaKwt' => collect(range(1, 12))->map(fn($m) => (int)($pekerjaKwtBulanan[$m] ?? 0))->values()->toArray(),
                 'kasusPhi' => collect(range(1, 12))->map(fn($m) => (int)($kasusPhiBulanan[$m] ?? 0))->values()->toArray(),
+                'perusahaanPP' => collect(range(1, 12))->map(fn($m) => (int)($perusahaanPPBulanan[$m] ?? 0))->values()->toArray(),
+                'kasusDiselesaikan' => collect(range(1, 12))->map(fn($m) => (int)($kasusDiselesaikanBulanan[$m] ?? 0))->values()->toArray(),
+                
                 'pelatihan' => collect(range(1, 12))->map(fn($m) => (int)($pelatihanBulanan[$m] ?? 0))->values()->toArray(),
                 'lpkAktif' => collect(range(1, 12))->map(fn($m) => (int)($lpkAktifBulanan[$m] ?? 0))->values()->toArray(),
                 'lpkNonaktif' => collect(range(1, 12))->map(fn($m) => (int)($lpkNonaktifBulanan[$m] ?? 0))->values()->toArray(),
@@ -80,7 +93,7 @@ Route::middleware(['web', \App\Http\Middleware\RoleMiddleware::class . ':super_a
 
             return view('dashboard', compact(
             'totalPencariKerja', 'totalLowongan', 'totalPenempatan',
-            'totalLaporanPkwt', 'totalPekerjaKwt', 'totalKasusPhi',
+            'totalLaporanPkwt', 'totalPekerjaKwt', 'totalKasusPhi', 'totalPerusahaanPP', 'tingkatPenyelesaianPhi',
             'totalLpkAktif', 'totalLpkNonaktif', 'totalPelatihan', 'totalPeserta',
             'chartData', 'tahun'
             ));
@@ -143,6 +156,20 @@ Route::middleware(['web', \App\Http\Middleware\RoleMiddleware::class . ':super_a
                         ->latest()->get();
                     $title = 'Rekapitulasi Kasus PHI';
                     $headers = ['No', 'Bulan', 'Sisa Kasus Lalu', 'Kasus Masuk', 'Sisa Kasus Akhir'];
+                    break;
+                case 'perusahaanPP':
+                    $data = \App\Models\PhiPeraturanPerusahaan::where('tahun', $tahun)
+                        ->select('nama_perusahaan as nama', 'sektor_usaha as detail_1', 'no_sk as detail_2', 'status_pp as status')
+                        ->latest()->get();
+                    $title = 'Daftar Perusahaan (Peraturan Perusahaan)';
+                    $headers = ['No', 'Nama Perusahaan', 'Sektor Pekerjaan', 'Masa Berlaku (SK)', 'Status Peraturan'];
+                    break;
+                case 'kasusDiselesaikan':
+                    $data = \App\Models\PhiReport::where('tahun', $tahun)
+                        ->selectRaw('CONCAT("Bulan: ", bulan) as nama, kasus_masuk as detail_1, (selesai_bipartit + selesai_pb + selesai_anjuran + selesai_lainnya) as detail_2, sisa_kasus_akhir as status')
+                        ->latest()->get();
+                    $title = 'Penyelesaian Kasus Bulanan';
+                    $headers = ['No', 'Bulan', 'Kasus Masuk', 'Berhasil Diselesaikan', 'Sisa Kasus Akhir'];
                     break;
 
                 // LATTAS

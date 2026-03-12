@@ -86,45 +86,59 @@
     <hr class="flex-grow-1 m-0">
 </div>
 
-<div class="row g-4 mb-4">
-    <div class="col-sm-6 col-lg-4">
-        <div class="card card-modern card-clickable shadow-sm p-4 border-start border-4 border-warning" onclick="updateChart('laporanPkwt', 'Total Laporan PKWT', '#eab308')">
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-md-3">
+        <div class="card card-modern card-clickable shadow-sm p-3 border-start border-4" style="border-color:#f97316!important;" onclick="updateChart('pekerjaKwt', 'Total Pekerja PKWT', '#f97316')">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h6 class="text-muted mb-1">Total Laporan PKWT</h6>
-                    <h3 class="fw-bold mb-0">{{ number_format($totalLaporanPkwt) }}</h3>
+                    <h6 class="text-muted mb-1" style="font-size: 0.82rem;">Pekerja PKWT <br><small>(Terlindungi)</small></h6>
+                    <h4 class="fw-bold mb-0 text-dark">{{ number_format($totalPekerjaKwt) }}</h4>
                 </div>
                 <div class="rounded-circle d-flex align-items-center justify-content-center"
-                     style="width:55px;height:55px;background:rgba(234,179,8,0.1);">
-                    <i class="fa fa-file-signature fa-lg text-warning"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-6 col-lg-4">
-        <div class="card card-modern card-clickable shadow-sm p-4 border-start border-4" style="border-color:#f97316!important;" onclick="updateChart('pekerjaKwt', 'Total Pekerja PKWT', '#f97316')">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h6 class="text-muted mb-1">Total Pekerja PKWT</h6>
-                    <h3 class="fw-bold mb-0">{{ number_format($totalPekerjaKwt) }}</h3>
-                </div>
-                <div class="rounded-circle d-flex align-items-center justify-content-center"
-                     style="width:55px;height:55px;background:rgba(249,115,22,0.1);">
+                     style="width:45px;height:45px;background:rgba(249,115,22,0.1);">
                     <i class="fa fa-users fa-lg" style="color:#f97316;"></i>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-sm-6 col-lg-4">
-        <div class="card card-modern card-clickable shadow-sm p-4 border-start border-4 border-danger" onclick="updateChart('kasusPhi', 'Total Kasus PHI Masuk', '#ef4444')">
+    <div class="col-sm-6 col-md-3">
+        <div class="card card-modern card-clickable shadow-sm p-3 border-start border-4 border-warning" onclick="updateChart('perusahaanPP', 'Perusahaan Tercatat PP', '#eab308')">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h6 class="text-muted mb-1">Total Kasus PHI Masuk</h6>
-                    <h3 class="fw-bold mb-0">{{ number_format($totalKasusPhi) }}</h3>
+                    <h6 class="text-muted mb-1" style="font-size: 0.82rem;">Perusahaan <br><small>(Patuh PP)</small></h6>
+                    <h4 class="fw-bold mb-0 text-dark">{{ number_format($totalPerusahaanPP) }}</h4>
                 </div>
                 <div class="rounded-circle d-flex align-items-center justify-content-center"
-                     style="width:55px;height:55px;background:rgba(239,68,68,0.1);">
+                     style="width:45px;height:45px;background:rgba(234,179,8,0.1);">
+                    <i class="fa fa-building fa-lg text-warning"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="card card-modern card-clickable shadow-sm p-3 border-start border-4 border-danger" onclick="updateChart('kasusPhi', 'Total Kasus PHI Masuk', '#ef4444')">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1" style="font-size: 0.82rem;">Kasus Perselisihan <br><small>(Masuk)</small></h6>
+                    <h4 class="fw-bold mb-0 text-dark">{{ number_format($totalKasusPhi) }}</h4>
+                </div>
+                <div class="rounded-circle d-flex align-items-center justify-content-center"
+                     style="width:45px;height:45px;background:rgba(239,68,68,0.1);">
                     <i class="fa fa-gavel fa-lg text-danger"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="card card-modern card-clickable shadow-sm p-3 border-start border-4" style="border-color:#10b981!important;" onclick="updateChart('kasusDiselesaikan', 'Penyelesaian Kasus', '#10b981')">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1" style="font-size: 0.82rem;">Penyelesaian <br><small>(Tingkat Keberhasilan)</small></h6>
+                    <h4 class="fw-bold mb-0 text-success">{{ $tingkatPenyelesaianPhi }}%</h4>
+                </div>
+                <div class="rounded-circle d-flex align-items-center justify-content-center"
+                     style="width:45px;height:45px;background:rgba(16,185,129,0.1);">
+                    <i class="fa fa-handshake fa-lg" style="color:#10b981;"></i>
                 </div>
             </div>
         </div>
@@ -244,7 +258,7 @@ function renderChart(datasets) {
             },
             scales: {
                 x: { grid: { display: false, drawBorder: false }, ticks: { font: { weight: '500' } } },
-                y: { grid: { color: '#f1f5f9', drawBorder: false, borderDash: [5, 5] }, beginAtZero: true }
+                y: { grid: { color: '#f1f5f9', drawBorder: false, borderDash: [5, 5] }, beginAtZero: true, ticks: { precision: 0, stepSize: 1 } }
             }
         }
     });
