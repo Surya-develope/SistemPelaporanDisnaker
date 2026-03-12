@@ -37,10 +37,20 @@
         </div>
     </div>
 
+    <form id="formBulkDelete" action="{{ route('phi.bulk-delete.pengaduan') }}" method="POST">
+        @csrf
+        @method('DELETE')
+        <div class="mb-2">
+            <button type="submit" id="btnBulkDelete" class="btn btn-danger btn-sm" style="display: none;">
+                <i class="fa fa-trash me-1"></i> Hapus Terpilih
+            </button>
+        </div>
+
     <div class="table-responsive">
         <table class="table table-bordered align-middle text-center">
             <thead class="table-light align-middle">
                 <tr>
+                    <th rowspan="2" class="align-middle" width="4%"><input type="checkbox" id="checkAll"></th>
                     <th rowspan="2">No</th>
                     <th rowspan="2">Periode</th>
                     <th rowspan="2">Sisa Bulan Lalu</th>
@@ -60,6 +70,7 @@
             <tbody>
                 @foreach($pengaduans as $index => $p)
                 <tr>
+                    <td class="align-middle"><input type="checkbox" class="checkItem" value="{{ $p->id }}"></td>
                     <td>{{ $index + 1 }}</td>
                     <td>{{ DateTime::createFromFormat('!m', $p->bulan)->format('M') }} {{ $p->tahun }}</td>
                     <td>{{ $p->sisa_bulan_lalu }}</td>
@@ -97,12 +108,13 @@
 
                 @if($pengaduans->isEmpty())
                 <tr>
-                    <td colspan="11" class="text-center">Belum ada data rekapan</td>
+                    <td colspan="12" class="text-center">Belum ada data rekapan</td>
                 </tr>
                 @endif
             </tbody>
         </table>
     </div>
+    </form>
 </div>
 
 @foreach($pengaduans as $p)

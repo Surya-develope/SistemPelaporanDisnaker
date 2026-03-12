@@ -14,6 +14,7 @@ Route::middleware(['web', \App\Http\Middleware\RoleMiddleware::class . ':admin,p
     Route::post('/pkwt/import', [PhiPkwtController::class , 'import'])->name('phi.import.pkwt');
     Route::put('/pkwt/{id}', [PhiPkwtController::class , 'update'])->name('phi.update.pkwt');
     Route::delete('/pkwt/{id}', [PhiPkwtController::class , 'destroy'])->name('phi.destroy.pkwt');
+    Route::delete('/pkwt/bulk-delete/all', [PhiPkwtController::class , 'bulkDelete'])->name('phi.bulk-delete.pkwt');
 
     // Rekap Pengaduan Kasus
     Route::get('/pengaduan', [PhiPengaduanController::class , 'index']);
@@ -21,6 +22,7 @@ Route::middleware(['web', \App\Http\Middleware\RoleMiddleware::class . ':admin,p
     Route::post('/pengaduan', [PhiPengaduanController::class , 'store'])->name('phi.store.pengaduan');
     Route::put('/pengaduan/{id}', [PhiPengaduanController::class , 'update'])->name('phi.update.pengaduan');
     Route::delete('/pengaduan/{id}', [PhiPengaduanController::class , 'destroy'])->name('phi.destroy.pengaduan');
+    Route::delete('/pengaduan/bulk-delete/all', [PhiPengaduanController::class , 'bulkDelete'])->name('phi.bulk-delete.pengaduan');
 
     // Rekap Peraturan Perusahaan
     Route::get('/peraturan', [PhiPeraturanPerusahaanController::class , 'index'])->name('phi.peraturan');
@@ -30,4 +32,5 @@ Route::middleware(['web', \App\Http\Middleware\RoleMiddleware::class . ':admin,p
     Route::post('/peraturan', [PhiPeraturanPerusahaanController::class , 'store'])->name('phi.store.peraturan');
     Route::put('/peraturan/{id}', [PhiPeraturanPerusahaanController::class , 'update'])->name('phi.update.peraturan');
     Route::delete('/peraturan/{id}', [PhiPeraturanPerusahaanController::class , 'destroy'])->name('phi.destroy.peraturan');
+    Route::delete('/peraturan/bulk-delete/all', [PhiPeraturanPerusahaanController::class , 'bulkDelete'])->name('phi.bulk-delete.peraturan');
 });

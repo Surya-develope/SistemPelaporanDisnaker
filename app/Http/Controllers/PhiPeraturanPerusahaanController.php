@@ -166,4 +166,13 @@ class PhiPeraturanPerusahaanController extends Controller
 
         return Excel::download(new GenericDataExport($exportData, $headings), 'Laporan_Peraturan_Perusahaan.xlsx');
     }
+
+    public function bulkDelete(Request $request)
+    {
+        $ids = json_decode($request->ids, true);
+        if (is_array($ids)) {
+            PhiPeraturanPerusahaan::whereIn('id', $ids)->delete();
+        }
+        return Redirect::back()->with('success', count($ids) . ' Data Peraturan Perusahaan berhasil dihapus!');
+    }
 }

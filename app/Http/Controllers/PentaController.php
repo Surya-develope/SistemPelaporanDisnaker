@@ -38,11 +38,11 @@ class PentaController extends Controller
         $no = 1;
         foreach ($data as $row) {
             $exportData[] = [
-                $no++, $row->bulan, $row->tahun, $row->judul_lowongan, $row->perusahaan, $row->tipe_pekerjaan, $row->kuota, $row->kuota_sisa, $row->status_lowongan, $row->tanggal_posting
+                $no++, $row->judul_lowongan, $row->perusahaan, $row->tipe_pekerjaan, $row->kuota, $row->kuota_sisa, $row->status_lowongan, $row->tanggal_posting
             ];
         }
 
-        $headings = ['No', 'Bulan', 'Tahun', 'Judul Lowongan', 'Perusahaan', 'Tipe', 'Kuota', 'Sisa Kuota', 'Status', 'Tanggal Posting'];
+        $headings = ['No', 'Judul Lowongan', 'Perusahaan', 'Tipe', 'Kuota', 'Sisa Kuota', 'Status', 'Tanggal Posting'];
         return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericDataExport($exportData, $headings), 'lowongan_kerja.xlsx');
     }
 
@@ -68,11 +68,11 @@ class PentaController extends Controller
         $no = 1;
         foreach ($data as $row) {
             $exportData[] = [
-                $no++, $row->bulan, $row->tahun, $row->nik, $row->nama_lengkap, $row->jenis_kelamin, $row->pendidikan_terakhir, $row->umur, $row->kategori_keahlian, $row->status_bekerja, $row->tanggal_daftar
+                $no++, $row->nik, $row->nama_lengkap, $row->jenis_kelamin, $row->pendidikan_terakhir, $row->umur, $row->kategori_keahlian, $row->status_bekerja, $row->tanggal_daftar
             ];
         }
 
-        $headings = ['No', 'Bulan', 'Tahun', 'NIK', 'Nama Lengkap', 'Jenis Kelamin', 'Pendidikan', 'Umur', 'Keahlian', 'Status', 'Tanggal Daftar'];
+        $headings = ['No', 'NIK', 'Nama Lengkap', 'Jenis Kelamin', 'Pendidikan', 'Umur', 'Keahlian', 'Status', 'Tanggal Daftar'];
         return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericDataExport($exportData, $headings), 'pencari_kerja.xlsx');
     }
 
@@ -98,43 +98,63 @@ class PentaController extends Controller
         $no = 1;
         foreach ($data as $row) {
             $exportData[] = [
-                $no++, $row->bulan, $row->tahun, $row->nik, $row->nama_pekerja, $row->perusahaan, $row->jabatan, $row->status_penempatan, $row->tanggal_diterima
+                $no++, $row->nik, $row->nama_pekerja, $row->perusahaan, $row->jabatan, $row->status_penempatan, $row->tanggal_diterima
             ];
         }
 
-        $headings = ['No', 'Bulan', 'Tahun', 'NIK', 'Nama Pekerja', 'Perusahaan', 'Jabatan', 'Status', 'Tanggal Diterima'];
+        $headings = ['No', 'NIK', 'Nama Pekerja', 'Perusahaan', 'Jabatan', 'Status', 'Tanggal Diterima'];
         return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericDataExport($exportData, $headings), 'penempatan_kerja.xlsx');
     }
 
-    public function importIndex()
+
+    public function templateLowongan()
     {
-        return View::make('penta.import');
+        $headings = ['judul_lowongan', 'perusahaan', 'kuota', 'status_lowongan'];
+        return Excel::download(new \App\Exports\GenericDataExport([], $headings), 'template_lowongan_penta.xlsx');
+    }
+
+    public function templatePencari()
+    {
+        $headings = ['nik', 'nama', 'jenis_kelamin', 'pendidikan_terakhir', 'status_verifikasi'];
+        return Excel::download(new \App\Exports\GenericDataExport([], $headings), 'template_pencari_penta.xlsx');
+    }
+
+    public function templatePenempatan()
+    {
+        $headings = ['nama', 'nama_perusahaan', 'judul_lowongan', 'tanggal_diterima'];
+        return Excel::download(new \App\Exports\GenericDataExport([], $headings), 'template_penempatan_penta.xlsx');
     }
 
     public function importLowongan(Request $request)
     {
         $request->validate([
+            'bulan' => 'required|integer|min:1|max:12',
+            'tahun' => 'required|integer|min:2000|max:2100',
             'file' => 'required|mimes:xls,xlsx,csv',
         ]);
-        Excel::import(new LowonganKerjaImport(), $request->file('file'));
+        Excel::import(new LowonganKerjaImport($request->bulan, $request->tahun), $request->file('file'));
         return Redirect::back()->with('success', 'Data Lowongan Kerja berhasil diimpor!');
     }
 
     public function importPencari(Request $request)
     {
         $request->validate([
+            'bulan' => 'required|integer|min:1|max:12',
+            'tahun' => 'required|integer|min:2000|max:2100',
             'file' => 'required|mimes:xls,xlsx,csv',
         ]);
-        Excel::import(new PencariKerjaImport(), $request->file('file'));
+        Excel::import(new PencariKerjaImport($request->bulan, $request->tahun), $request->file('file'));
         return Redirect::back()->with('success', 'Data Pencari Kerja Aktif berhasil diimpor!');
     }
 
     public function importPenempatan(Request $request)
     {
         $request->validate([
+            'bulan' => 'required|integer|min:1|max:12',
+            'tahun' => 'required|integer|min:2000|max:2100',
             'file' => 'required|mimes:xls,xlsx,csv',
         ]);
-        Excel::import(new PenempatanImport(), $request->file('file'));
+        Excel::import(new PenempatanImport($request->bulan, $request->tahun), $request->file('file'));
         return Redirect::back()->with('success', 'Data Penempatan berhasil diimpor!');
     }
 
@@ -268,5 +288,32 @@ class PentaController extends Controller
         Penempatan::create($data);
 
         return Redirect::back()->with('success', 'Data Penempatan berhasil ditambahkan!');
+    }
+
+    public function bulkDeleteLowongan(Request $request)
+    {
+        $ids = json_decode($request->ids, true);
+        if(is_array($ids)) {
+            LowonganKerja::whereIn('id', $ids)->delete();
+        }
+        return Redirect::back()->with('success', count($ids) . ' Data Lowongan Kerja berhasil dihapus!');
+    }
+
+    public function bulkDeletePencari(Request $request)
+    {
+        $ids = json_decode($request->ids, true);
+        if(is_array($ids)) {
+            PencariKerja::whereIn('id', $ids)->delete();
+        }
+        return Redirect::back()->with('success', count($ids) . ' Data Pencari Kerja berhasil dihapus!');
+    }
+
+    public function bulkDeletePenempatan(Request $request)
+    {
+        $ids = json_decode($request->ids, true);
+        if(is_array($ids)) {
+            Penempatan::whereIn('id', $ids)->delete();
+        }
+        return Redirect::back()->with('success', count($ids) . ' Data Penempatan berhasil dihapus!');
     }
 }

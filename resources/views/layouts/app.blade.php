@@ -322,9 +322,6 @@
                 <a href="/penta/rekap" class="{{ request()->is('penta/rekap') ? 'active' : '' }}">
                     <i class="fa fa-chart-pie"></i> Rekap Pendaftaran
                 </a>
-                <a href="/penta/import" class="{{ request()->is('penta/import') ? 'active' : '' }}">
-                    <i class="fa fa-file-excel"></i> Import Data Excel
-                </a>
             </div>
         </div>
         @endif
@@ -362,17 +359,23 @@
         </a>
         <div class="collapse {{ request()->is('lattas/*') ? 'show' : '' }}" id="lattasMenu">
             <div class="submenu">
+                <a data-bs-toggle="collapse" href="#lpkMenu" role="button"
+                   aria-expanded="{{ request()->is('lattas/lpk*') ? 'true' : 'false' }}"
+                   class="{{ request()->is('lattas/lpk*') ? 'active' : '' }}">
+                    <i class="fa fa-building"></i> Lembaga Pelatihan Kerja
+                </a>
+                <div class="collapse {{ request()->is('lattas/lpk*') ? 'show' : '' }}" id="lpkMenu">
+                    <div style="background: rgba(0,0,0,.08);">
+                        <a href="/lattas/lpk-aktif" class="{{ request()->is('lattas/lpk-aktif') ? 'active' : '' }}" style="padding-left: 55px; font-size: 11.5px;">
+                            <i class="fa fa-circle-check"></i> LPK Aktif
+                        </a>
+                        <a href="/lattas/lpk-nonaktif" class="{{ request()->is('lattas/lpk-nonaktif') ? 'active' : '' }}" style="padding-left: 55px; font-size: 11.5px;">
+                            <i class="fa fa-circle-xmark"></i> LPK Tidak Aktif
+                        </a>
+                    </div>
+                </div>
                 <a href="/lattas/pelatihan" class="{{ request()->is('lattas/pelatihan') ? 'active' : '' }}">
                     <i class="fa fa-chalkboard-teacher"></i> Data Pelatihan
-                </a>
-                <a href="/lattas/lpk-aktif" class="{{ request()->is('lattas/lpk-aktif') ? 'active' : '' }}">
-                    <i class="fa fa-building"></i> Rekap LPK Aktif
-                </a>
-                <a href="/lattas/lpk-nonaktif" class="{{ request()->is('lattas/lpk-nonaktif') ? 'active' : '' }}">
-                    <i class="fa fa-building-circle-xmark"></i> Rekap LPK Non Aktif
-                </a>
-                <a href="/lattas/import" class="{{ request()->is('lattas/import') ? 'active' : '' }}">
-                    <i class="fa fa-file-excel"></i> Upload Data Excel
                 </a>
             </div>
         </div>
@@ -443,5 +446,7 @@
     }
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ asset('js/bulk-delete.js') }}"></script>
 </body>
 </html>

@@ -124,4 +124,19 @@ class PhiPengaduanController extends Controller
         $pengaduan->delete();
         return Redirect::back()->with('success', 'Data Pengaduan Kasus berhasil dihapus!');
     }
+
+    public function bulkDelete(Request $request)
+    {
+        $ids = json_decode($request->ids, true);
+        if (is_array($ids)) {
+            $pengaduans = PhiReport::whereIn('id', $ids)->get();
+            foreach ($pengaduans as $pengaduan) {
+                if ($pengaduan->file_path && Storage::disk('public')->exists($pengaduan->file_path)) {
+                    Storage::disk('public')->delete($pengaduan->file_path);
+                }
+                $pengaduan->delete();
+            }
+        }
+        return Redirect::back()->with('success', count($ids) . ' Data Pengaduan Kasus berhasil dihapus!');
+    }
 }

@@ -9,6 +9,14 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class LpkTrainingImport implements ToModel, WithHeadingRow
 {
+    protected $bulan;
+    protected $tahun;
+
+    public function __construct($bulan, $tahun)
+    {
+        $this->bulan = $bulan;
+        $this->tahun = $tahun;
+    }
 
     /**
     * @param array $row
@@ -31,8 +39,8 @@ class LpkTrainingImport implements ToModel, WithHeadingRow
             'program_pelatihan' => $row['program_pelatihan'] ?? '-',
             'jumlah_peserta'    => $peserta,
             'jumlah_paket'      => $paket,
-            'bulan'             => $row['bulan'] ?? date('n'),
-            'tahun'             => $row['tahun'] ?? date('Y'),
+            'bulan'             => $this->bulan,
+            'tahun'             => $this->tahun,
         ]);
     }
 }

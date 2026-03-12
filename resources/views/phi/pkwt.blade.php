@@ -40,11 +40,21 @@
         </div>
     </div>
 
+    <form id="formBulkDelete" action="{{ route('phi.bulk-delete.pkwt') }}" method="POST">
+        @csrf
+        @method('DELETE')
+        <div class="mb-2">
+            <button type="submit" id="btnBulkDelete" class="btn btn-danger btn-sm" style="display: none;">
+                <i class="fa fa-trash me-1"></i> Hapus Terpilih
+            </button>
+        </div>
+
     <div class="table-responsive">
         <table class="table table-hover align-middle border-top">
             <thead class="table-light">
                 <tr class="text-secondary fw-semibold">
-                    <th class="ps-3" width="50">No</th>
+                    <th class="ps-3" width="4%"><input type="checkbox" id="checkAll"></th>
+                    <th width="50">No</th>
                     <th width="120">Periode</th>
                     <th width="200">No. Pencatatan</th>
                     <th>Detail Perusahaan</th>
@@ -60,7 +70,8 @@
                 @foreach($pkwts as $index => $p)
                 @php $grandTotalPekerja += $p->total_pekerja @endphp
                 <tr>
-                    <td class="ps-3 text-muted">{{ $index + 1 }}</td>
+                    <td class="ps-3"><input type="checkbox" class="checkItem" value="{{ $p->id }}"></td>
+                    <td class="text-muted">{{ $index + 1 }}</td>
                     <td>
                         <div class="fw-medium text-dark">{{ DateTime::createFromFormat('!m', $p->bulan)->format('M') }}</div>
                         <div class="small text-muted">{{ $p->tahun }}</div>
@@ -107,14 +118,14 @@
                 
                 @if($pkwts->isEmpty())
                 <tr>
-                    <td colspan="8" class="text-center py-5 text-muted">
+                    <td colspan="10" class="text-center py-5 text-muted">
                         <i class="fa fa-folder-open fs-1 d-block mb-3 opacity-25"></i>
                         Belum ada data rekapan untuk periode ini.
                     </td>
                 </tr>
                 @else
                 <tr class="table-info border-top-2">
-                    <td colspan="4" class="text-end fw-bold py-3 ps-3">TOTAL KESELURUHAN PEKERJA :</td>
+                    <td colspan="5" class="text-end fw-bold py-3 ps-3">TOTAL KESELURUHAN PEKERJA :</td>
                     <td class="text-center py-3">
                         <div class="fw-bolder fs-4 text-dark">{{ number_format($grandTotalPekerja) }}</div>
                         <div class="small text-uppercase fw-bold text-muted">Orang</div>
@@ -125,6 +136,7 @@
             </tbody>
         </table>
     </div>
+    </form>
 </div>
 
 <!-- Modal Import PKWT -->

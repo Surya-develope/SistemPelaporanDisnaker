@@ -11,49 +11,49 @@
 @endif
 
 <div class="card shadow p-3 mb-4">
-    <form method="GET" action="{{ url('/lattas/pelatihan') }}" class="row g-3 align-items-end">
-        <div class="col-md-3">
-            <label class="form-label">Tampilkan Bulan:</label>
-            <select name="bulan" class="form-select">
+    <div class="d-flex justify-content-between mb-3 align-items-center">
+        <form method="GET" action="{{ url('/lattas/pelatihan') }}" class="d-flex gap-2">
+            <select name="bulan" class="form-select w-auto shadow-sm border-primary-subtle" onchange="this.form.submit()">
                 <option value="">Semua Bulan</option>
                 @for($i=1; $i<=12; $i++)
                     <option value="{{ $i }}" {{ request('bulan') == $i ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $i, 1)) }}</option>
                 @endfor
             </select>
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">Tahun:</label>
-            <input type="number" name="tahun" class="form-control" value="{{ request('tahun') }}" placeholder="Contoh: 2026">
-        </div>
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-primary w-100"><i class="fa fa-filter me-1"></i> Filter</button>
-        </div>
-        @if(request('bulan') || request('tahun'))
-        <div class="col-md-2">
-            <a href="{{ url('/lattas/pelatihan') }}" class="btn btn-outline-secondary w-100">Reset</a>
-        </div>
-        @endif
-        <div class="col-md-auto ms-auto">
-            <a href="{{ route('lattas.export.pelatihan', ['bulan' => request('bulan'), 'tahun' => request('tahun')]) }}" class="btn btn-success">
+            <select name="tahun" class="form-select w-auto shadow-sm border-primary-subtle" onchange="this.form.submit()">
+                <option value="">Semua Tahun</option>
+                @for ($y = date('Y'); $y >= 2020; $y--)
+                    <option value="{{ $y }}" {{ request('tahun') == $y ? 'selected' : '' }}>{{ $y }}</option>
+                @endfor
+            </select>
+            <a href="{{ route('lattas.export.pelatihan', ['bulan' => request('bulan'), 'tahun' => request('tahun')]) }}" class="btn btn-outline-success shadow-sm">
                 <i class="fa fa-file-excel me-1"></i> Export Excel
             </a>
-        </div>
-    </form>
-</div>
+        </form>
 
-<div class="card shadow p-3">
-    <div class="d-flex justify-content-between mb-3">
-        <h6>Daftar Program Pelatihan</h6>
-        <div>
-            <button type="button" class="btn btn-success btn-sm me-2" data-bs-toggle="modal" data-bs-target="#tambahTrainingModal">
-                <i class="fa fa-plus me-1"></i> Tambah Data Manual
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalImportTraining">
+                <i class="fa fa-file-excel me-1"></i> Impor Excel
             </button>
-            <a href="{{ route('lattas.import') }}" class="btn btn-primary btn-sm"><i class="fa fa-upload me-1"></i> Import Excel</a>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambahTrainingModal">
+                <i class="fa fa-plus me-1"></i> Tambah Manual
+            </button>
         </div>
     </div>
+
+    <form id="formBulkDelete" action="{{ route('lattas.bulk-delete.training') }}" method="POST">
+        @csrf
+        @method('DELETE')
+        <div class="mb-2">
+            <button type="submit" id="btnBulkDelete" class="btn btn-danger btn-sm" style="display: none;">
+                <i class="fa fa-trash me-1"></i> Hapus Terpilih
+            </button>
+        </div>
+
+    <div class="table-responsive">
     <table class="table table-bordered table-striped text-center align-middle">
         <thead class="table-light">
             <tr>
+                <th width="4%"><input type="checkbox" id="checkAll"></th>
                 <th width="5%">No</th>
                 <th width="15%">Bulan / Tahun</th>
                 <th>Nama LPK/Lembaga</th>
@@ -66,6 +66,7 @@
         <tbody>
             @forelse ($trainings as $training)
             <tr>
+                <td><input type="checkbox" class="checkItem" value="{{ $training->id }}"></td>
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $training->bulan ? date('F', mktime(0, 0, 0, $training->bulan, 1)) : '-' }} {{ $training->tahun ?? '' }}</td>
                 <td class="text-start">{{ $training->nama_lpk ?? '-' }}</td>
@@ -95,13 +96,15 @@
         </tbody>
         <tfoot class="table-group-divider fw-bold bg-light">
             <tr>
-                <td colspan="4" class="text-end">JUMLAH TOTAL</td>
+                <td colspan="5" class="text-end">JUMLAH TOTAL</td>
                 <td>{{ $trainings->sum('jumlah_peserta') }} Orang</td>
                 <td>{{ $trainings->sum('jumlah_paket') }} Paket</td>
                 <td></td>
             </tr>
         </tfoot>
     </table>
+    </div>
+    </form>
 </div>
 
 <!-- Render Modals Outside Table -->
@@ -198,5 +201,54 @@
     </div>
 </div>
 @endforeach
+
+<!-- Modal Import Pelatihan -->
+<div class="modal fade" id="modalImportTraining" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Impor Data Pelatihan LPK dari Excel</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('lattas.import.training') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
+                    <div class="alert alert-info py-2">
+                        <small>
+                            <strong>Info:</strong> Pastikan format header Excel sesuai. 
+                            <br>Format: <code>Nama LPK</code>, <code>Program Pelatihan</code>, <code>Jumlah Peserta</code>, <code>Jumlah Paket</code>
+                            <br>
+                            <a href="{{ route('lattas.template.pelatihan') }}" class="fw-bold text-decoration-none"><i class="fa fa-download"></i> Unduh Template Excel</a>
+                        </small>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Bulan Laporan</label>
+                            <select name="bulan" class="form-select" required>
+                                @foreach (range(1, 12) as $m)
+                                    <option value="{{ $m }}" {{ date('n') == $m ? 'selected' : '' }}>
+                                        {{ DateTime::createFromFormat('!m', $m)->format('F') }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Tahun Laporan</label>
+                            <input type="number" name="tahun" class="form-control" value="{{ date('Y') }}" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label>Pilih File Excel (.xlsx, .xls, .csv)</label>
+                        <input type="file" name="file" class="form-control" accept=".xls,.xlsx,.csv" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success">Mulai Impor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 @endsection

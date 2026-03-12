@@ -8,6 +8,14 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class PenempatanImport implements ToModel, WithHeadingRow
 {
+    protected $bulan;
+    protected $tahun;
+
+    public function __construct($bulan, $tahun)
+    {
+        $this->bulan = $bulan;
+        $this->tahun = $tahun;
+    }
 
     public function model(array $row)
     {
@@ -27,8 +35,8 @@ class PenempatanImport implements ToModel, WithHeadingRow
             'domisili_lowongan'           => $row['domisili_lowongan'] ?? null,
             'tanggal_melamar'             => isset($row['tanggal_melamar']) && strtotime($row['tanggal_melamar']) ? date('Y-m-d', strtotime($row['tanggal_melamar'])) : null,
             'tanggal_diterima'            => isset($row['tanggal_diterima']) && strtotime($row['tanggal_diterima']) ? date('Y-m-d', strtotime($row['tanggal_diterima'])) : null,
-            'bulan'                       => $row['bulan'] ?? date('n'),
-            'tahun'                       => $row['tahun'] ?? date('Y'),
+            'bulan'                       => $this->bulan,
+            'tahun'                       => $this->tahun,
         ]);
     }
 }

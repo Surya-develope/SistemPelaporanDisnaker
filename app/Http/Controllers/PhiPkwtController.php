@@ -127,4 +127,19 @@ class PhiPkwtController extends Controller
         $pkwt->delete();
         return Redirect::back()->with('success', 'Data PKWT berhasil dihapus!');
     }
+
+    public function bulkDelete(Request $request)
+    {
+        $ids = json_decode($request->ids, true);
+        if (is_array($ids)) {
+            $pkwts = PkwtReport::whereIn('id', $ids)->get();
+            foreach ($pkwts as $pkwt) {
+                if ($pkwt->file_path && Storage::disk('public')->exists($pkwt->file_path)) {
+                    Storage::disk('public')->delete($pkwt->file_path);
+                }
+                $pkwt->delete();
+            }
+        }
+        return Redirect::back()->with('success', count($ids) . ' Data PKWT berhasil dihapus!');
+    }
 }

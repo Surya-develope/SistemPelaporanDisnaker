@@ -44,11 +44,21 @@
         </div>
     </div>
 
+    <form id="formBulkDelete" action="{{ route('phi.bulk-delete.peraturan') }}" method="POST">
+        @csrf
+        @method('DELETE')
+        <div class="mb-2">
+            <button type="submit" id="btnBulkDelete" class="btn btn-danger btn-sm" style="display: none;">
+                <i class="fa fa-trash me-1"></i> Hapus Terpilih
+            </button>
+        </div>
+
     <div class="table-responsive">
         <table class="table table-hover align-middle border-top">
             <thead class="table-light">
                 <tr class="text-secondary fw-semibold">
-                    <th class="ps-3" width="50">No</th>
+                    <th class="ps-3" width="4%"><input type="checkbox" id="checkAll"></th>
+                    <th width="50">No</th>
                     <th width="300">Deskripsi Perusahaan</th>
                     <th width="150" class="text-center">Sektor Usaha</th>
                     <th class="text-center" width="120">Pekerja</th>
@@ -60,7 +70,8 @@
             <tbody>
                 @foreach($peraturans as $index => $p)
                 <tr>
-                    <td class="ps-3 text-muted">{{ $index + 1 }}</td>
+                    <td class="ps-3"><input type="checkbox" class="checkItem" value="{{ $p->id }}"></td>
+                    <td class="text-muted">{{ $index + 1 }}</td>
                     <td>
                         <div class="fw-bold text-primary mb-0" style="font-size: 1.05rem;">{{ $p->nama_perusahaan }}</div>
                         @if($p->nama_pimpinan)
@@ -111,7 +122,7 @@
                 
                 @if($peraturans->isEmpty())
                 <tr>
-                    <td colspan="7" class="text-center py-5 text-muted">
+                    <td colspan="8" class="text-center py-5 text-muted">
                         <i class="fa fa-folder-open fs-1 d-block mb-3 opacity-25"></i>
                         Belum ada data Rekap Peraturan Perusahaan.
                     </td>
@@ -120,6 +131,7 @@
             </tbody>
         </table>
     </div>
+    </form>
 </div>
 
 <!-- Modal Import Peraturan -->

@@ -8,6 +8,14 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class LpkImport implements ToModel, WithHeadingRow
 {
+    protected $bulan;
+    protected $tahun;
+
+    public function __construct($bulan, $tahun)
+    {
+        $this->bulan = $bulan;
+        $this->tahun = $tahun;
+    }
 
     /**
     * @param array $row
@@ -30,6 +38,15 @@ class LpkImport implements ToModel, WithHeadingRow
             }
         }
 
+        // Handle status mapping robustly
+        $statusRaw = $row['status'] ?? $row['status_lpk'] ?? 'aktif';
+        // Trim and lowercase: ' Tidak Aktif ' -> 'tidak aktif'
+        $statusFixed = trim(strtolower($statusRaw));
+        if ($statusFixed !== 'aktif' && $statusFixed !== 'tidak aktif') {
+            // Default to aktif if unknown value
+            $statusFixed = 'aktif';
+        }
+
         // We use updateOrCreate to prevent duplicates based on the LPK Name
         return Lpk::updateOrCreate(
             ['nama_lpk' => $row['nama_lpk']], // Find by 'nama_lpk' header
@@ -37,9 +54,9 @@ class LpkImport implements ToModel, WithHeadingRow
                 'nama_pimpinan' => $row['nama_pimpinan'] ?? null,
                 'tahun_berdiri' => $tahun_berdiri,
                 'alamat'        => $row['alamat'] ?? null,
-                'status'        => 'aktif', // default assumed active unless otherwise specified
-                'bulan'         => (int) ($row['bulan'] ?? date('n')),
-                'tahun'         => (int) ($row['tahun'] ?? date('Y')),
+                'status'        => $statusFixed,
+                'bulan'         => $this->bulan,
+                'tahun'         => $this->tahun,
             ]
         );
     }

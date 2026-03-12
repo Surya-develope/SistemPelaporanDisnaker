@@ -42,11 +42,11 @@ class LattasController extends Controller
         foreach ($data as $row) {
             $namaLpk = $row->nama_lpk ? $row->nama_lpk : '-';
             $exportData[] = [
-                $no++, $row->bulan, $row->tahun, $namaLpk, $row->program_pelatihan, $row->jumlah_peserta, $row->jumlah_paket
+                $no++, $namaLpk, $row->program_pelatihan, $row->jumlah_peserta, $row->jumlah_paket
             ];
         }
 
-        $headings = ['No', 'Bulan', 'Tahun', 'Nama LPK', 'Program Pelatihan', 'Jumlah Peserta', 'Jumlah Paket'];
+        $headings = ['No', 'Nama LPK', 'Program Pelatihan', 'Jumlah Peserta', 'Jumlah Paket'];
         return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericDataExport($exportData, $headings), 'program_pelatihan.xlsx');
     }
 
@@ -120,20 +120,29 @@ class LattasController extends Controller
         return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericDataExport($exportData, $headings), 'lpk_tidak_aktif.xlsx');
     }
 
-    // Muka halaman form upload
-    public function index()
+
+    public function templateLpk()
     {
-        return \Illuminate\Support\Facades\View::make('lattas.import');
+        $headings = ['Nama LPK', 'Nama Pimpinan', 'Tahun Berdiri', 'Alamat', 'Status'];
+        return Excel::download(new \App\Exports\GenericDataExport([], $headings), 'template_master_lpk.xlsx');
+    }
+
+    public function templatePelatihan()
+    {
+        $headings = ['Nama LPK', 'Program Pelatihan', 'Jumlah Peserta', 'Jumlah Paket'];
+        return Excel::download(new \App\Exports\GenericDataExport([], $headings), 'template_training_lpk.xlsx');
     }
 
     // Proses data Master LPK
     public function importLpk(Request $request)
     {
         $request->validate([
+            'bulan' => 'required|integer|min:1|max:12',
+            'tahun' => 'required|integer|min:2000|max:2100',
             'file' => 'required|mimes:xls,xlsx,csv',
         ]);
 
-        Excel::import(new LpkImport(), $request->file('file'));
+        Excel::import(new LpkImport($request->bulan, $request->tahun), $request->file('file'));
 
         return Redirect::back()->with('success', 'Data Master LPK berhasil diimpor!');
     }
@@ -142,10 +151,12 @@ class LattasController extends Controller
     public function importLpkTraining(Request $request)
     {
         $request->validate([
+            'bulan' => 'required|integer|min:1|max:12',
+            'tahun' => 'required|integer|min:2000|max:2100',
             'file' => 'required|mimes:xls,xlsx,csv',
         ]);
 
-        Excel::import(new LpkTrainingImport(), $request->file('file'));
+        Excel::import(new LpkTrainingImport($request->bulan, $request->tahun), $request->file('file'));
 
         return Redirect::back()->with('success', 'Data Pelatihan LPK berhasil diimpor!');
     }
@@ -235,5 +246,23 @@ class LattasController extends Controller
         LpkTraining::create($data);
 
         return Redirect::back()->with('success', 'Data Pelatihan LPK berhasil ditambahkan!');
+    }
+
+    public function bulkDeleteLpk(Request $request)
+    {
+        $ids = json_decode($request->ids, true);
+        if (is_array($ids)) {
+            Lpk::whereIn('id', $ids)->delete();
+        }
+        return Redirect::back()->with('success', count($ids) . ' Data LPK beserta riwayat pelatihannya berhasil dihapus!');
+    }
+
+    public function bulkDeleteTraining(Request $request)
+    {
+        $ids = json_decode($request->ids, true);
+        if (is_array($ids)) {
+            LpkTraining::whereIn('id', $ids)->delete();
+        }
+        return Redirect::back()->with('success', count($ids) . ' Data Pelatihan LPK berhasil dihapus!');
     }
 }
