@@ -16,9 +16,10 @@ Route::middleware(['web', \App\Http\Middleware\RoleMiddleware::class . ':admin,p
     Route::delete('/pkwt/{id}', [PhiPkwtController::class , 'destroy'])->name('phi.destroy.pkwt');
     Route::delete('/pkwt/bulk-delete/all', [PhiPkwtController::class , 'bulkDelete'])->name('phi.bulk-delete.pkwt');
 
-    // Rekap Pengaduan Kasus
     Route::get('/pengaduan', [PhiPengaduanController::class , 'index']);
+    Route::get('/pengaduan/template', [PhiPengaduanController::class , 'downloadTemplate'])->name('phi.template.pengaduan');
     Route::get('/pengaduan/export', [PhiPengaduanController::class , 'export'])->name('phi.export.pengaduan');
+    Route::post('/pengaduan/import', [PhiPengaduanController::class , 'import'])->name('phi.import.pengaduan');
     Route::post('/pengaduan', [PhiPengaduanController::class , 'store'])->name('phi.store.pengaduan');
     Route::put('/pengaduan/{id}', [PhiPengaduanController::class , 'update'])->name('phi.update.pengaduan');
     Route::delete('/pengaduan/{id}', [PhiPengaduanController::class , 'destroy'])->name('phi.destroy.pengaduan');

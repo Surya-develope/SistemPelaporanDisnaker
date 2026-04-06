@@ -134,6 +134,7 @@ class PhiPkwtController extends Controller
         if (is_array($ids)) {
             $pkwts = PkwtReport::whereIn('id', $ids)->get();
             foreach ($pkwts as $pkwt) {
+                /** @var \App\Models\PkwtReport $pkwt */
                 if ($pkwt->file_path && Storage::disk('public')->exists($pkwt->file_path)) {
                     Storage::disk('public')->delete($pkwt->file_path);
                 }

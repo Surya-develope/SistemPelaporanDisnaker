@@ -31,8 +31,8 @@
         </form>
 
         <div class="d-flex gap-2">
-            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalImportPkwt">
-                <i class="fa fa-file-excel me-1"></i> Impor Excel
+            <button class="btn btn-success shadow-sm" data-bs-toggle="modal" data-bs-target="#modalImportPkwt">
+                <i class="fa fa-file-import me-1"></i> Import Excel
             </button>
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahPkwt">
                 <i class="fa fa-plus me-1"></i> Tambah Manual
@@ -150,36 +150,32 @@
             <form action="{{ route('phi.import.pkwt') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body">
-                    <div class="alert alert-info py-2">
-                        <small>
-                            <strong>Info:</strong> Pastikan format header Excel sesuai. 
-                            <a href="{{ route('phi.template.pkwt') }}" class="fw-bold text-decoration-none"><i class="fa fa-download"></i> Unduh Template Excel</a>
-                        </small>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label>Bulan Laporan</label>
-                            <select name="bulan" class="form-select" required>
-                                @foreach (range(1, 12) as $m)
-                                    <option value="{{ $m }}" {{ date('n') == $m ? 'selected' : '' }}>
-                                        {{ DateTime::createFromFormat('!m', $m)->format('F') }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label>Tahun Laporan</label>
-                            <input type="number" name="tahun" class="form-control" value="{{ date('Y') }}" required>
-                        </div>
+                    <div class="mb-3">
+                        <label>Pilih Bulan Laporan <span class="text-danger">*</span></label>
+                        <select name="bulan" class="form-select" required>
+                            @foreach (range(1, 12) as $m)
+                                <option value="{{ $m }}" {{ date('n') == $m ? 'selected' : '' }}>
+                                    {{ DateTime::createFromFormat('!m', $m)->format('F') }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="mb-3">
-                        <label>Pilih File Excel (.xlsx, .xls, .csv)</label>
+                        <label>Tahun Laporan <span class="text-danger">*</span></label>
+                        <input type="number" name="tahun" class="form-control" value="{{ date('Y') }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Upload File Excel <span class="text-danger">*</span></label>
                         <input type="file" name="file" class="form-control" accept=".xls,.xlsx,.csv" required>
+                    </div>
+                    <div class="alert alert-info py-2">
+                        <i class="fa fa-info-circle me-1"></i> Pastikan format header Excel sesuai template.
+                        <a href="{{ route('phi.template.pkwt') }}" class="d-block mt-2 fw-bold text-success border-bottom border-success" style="width: fit-content;"><i class="fa fa-download me-1"></i> Download Template</a>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-success">Mulai Impor</button>
+                    <button type="submit" class="btn btn-success"><i class="fa fa-upload me-1"></i> Mulai Impor</button>
                 </div>
             </form>
         </div>

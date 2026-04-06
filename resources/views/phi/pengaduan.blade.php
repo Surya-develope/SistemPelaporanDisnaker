@@ -36,6 +36,9 @@
         </form>
 
         <div class="d-flex gap-2">
+            <button type="button" class="btn btn-success shadow-sm" data-bs-toggle="modal" data-bs-target="#modalImportPengaduan">
+                <i class="fa fa-file-import me-1"></i> Import Excel
+            </button>
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahPengaduan">
                 <i class="fa fa-plus me-1"></i> Tambah Kasus
             </button>
@@ -340,6 +343,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     container.style.display = 'block';
                 } else {
                     container.style.display = 'none';
+                    if(container.querySelector('select')) {
+                        container.querySelector('select').value = '';
+                    }
                     if(container.querySelector('input')) {
                         container.querySelector('input').value = '';
                     }
@@ -349,5 +355,46 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<!-- Modal Import Excel -->
+<div class="modal fade" id="modalImportPengaduan" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Import Data Kasus PHI</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('phi.import.pengaduan') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Pilih Bulan Laporan <span class="text-danger">*</span></label>
+                        <select name="bulan" class="form-select" required>
+                            @foreach(range(1, 12) as $m)
+                            <option value="{{ $m }}" {{ date('m') == $m ? 'selected' : '' }}>{{ DateTime::createFromFormat('!m', $m)->format('F') }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label>Tahun Laporan <span class="text-danger">*</span></label>
+                        <input type="number" name="tahun" class="form-control" value="{{ date('Y') }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Upload File Excel <span class="text-danger">*</span></label>
+                        <input type="file" name="file" class="form-control" accept=".xls,.xlsx,.csv" required>
+                    </div>
+                    <div class="alert alert-info py-2">
+                        <i class="fa fa-info-circle me-1"></i> Pastikan format kolom sama persis dengan Template.
+                        <a href="{{ route('phi.template.pengaduan') }}" class="d-block mt-2 fw-bold text-success border-bottom border-success" style="width: fit-content;"><i class="fa fa-download me-1"></i> Download Template</a>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success"><i class="fa fa-upload me-1"></i> Mulai Impor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 @endsection

@@ -7,6 +7,8 @@ use App\Models\PhiReport;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\GenericDataExport;
+use App\Imports\PhiPengaduanImport;
+use App\Exports\PhiPengaduanTemplateExport;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Redirect;
 
@@ -163,6 +165,27 @@ class PhiPengaduanController extends Controller
         $pengaduan->update($data);
 
         return Redirect::back()->with('success', 'Data Kasus berhasil diperbarui!');
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'bulan' => 'required|integer|min:1|max:12',
+            'tahun' => 'required|integer|min:2000|max:2100',
+            'file' => 'required|file|mimes:xls,xlsx,csv|max:5120',
+        ]);
+
+        Excel::import(
+            new PhiPengaduanImport($request->bulan, $request->tahun),
+            $request->file('file')
+        );
+
+        return Redirect::back()->with('success', 'Data Kasus berhasil diimpor dari Excel!');
+    }
+
+    public function downloadTemplate()
+    {
+        return Excel::download(new PhiPengaduanTemplateExport, 'template_pengaduan_kasus.xlsx');
     }
 
     public function destroy($id)
