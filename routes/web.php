@@ -28,10 +28,10 @@ Route::middleware(['web', \App\Http\Middleware\RoleMiddleware::class . ':super_a
             $totalLaporanPkwt = \App\Models\PkwtReport::count();
             $totalPekerjaKwt = \App\Models\PkwtReport::sum('total_pekerja');
             $totalPerusahaanPP = \App\Models\PhiPeraturanPerusahaan::count();
-            $totalKasusPhi = \App\Models\PhiReport::sum('kasus_masuk');
+            $totalKasusPhi = \App\Models\PhiReport::count();
             
             // Hitung Tingkat Penyelesaian Kasus
-            $totalKasusSelesai = \App\Models\PhiReport::sum('selesai_bipartit') + \App\Models\PhiReport::sum('selesai_pb') + \App\Models\PhiReport::sum('selesai_anjuran') + \App\Models\PhiReport::sum('selesai_lainnya');
+            $totalKasusSelesai = \App\Models\PhiReport::where('status_kasus', 'selesai')->count();
             $tingkatPenyelesaianPhi = $totalKasusPhi > 0 ? round(($totalKasusSelesai / $totalKasusPhi) * 100, 1) : 0;
 
             // === BIDANG LATTAS ===
@@ -56,12 +56,12 @@ Route::middleware(['web', \App\Http\Middleware\RoleMiddleware::class . ':super_a
                 ->where('tahun', $tahun)->groupBy('bulan')->pluck('total', 'bulan');
             $pekerjaKwtBulanan = \App\Models\PkwtReport::selectRaw('bulan, SUM(total_pekerja) as total')
                 ->where('tahun', $tahun)->groupBy('bulan')->pluck('total', 'bulan');
-            $kasusPhiBulanan = \App\Models\PhiReport::selectRaw('bulan, SUM(kasus_masuk) as total')
+            $kasusPhiBulanan = \App\Models\PhiReport::selectRaw('bulan, COUNT(*) as total')
                 ->where('tahun', $tahun)->groupBy('bulan')->pluck('total', 'bulan');
             $perusahaanPPBulanan = \App\Models\PhiPeraturanPerusahaan::selectRaw('bulan, COUNT(*) as total')
                 ->where('tahun', $tahun)->groupBy('bulan')->pluck('total', 'bulan');
-            $kasusDiselesaikanBulanan = \App\Models\PhiReport::selectRaw('bulan, SUM(selesai_bipartit + selesai_pb + selesai_anjuran + selesai_lainnya) as total')
-                ->where('tahun', $tahun)->groupBy('bulan')->pluck('total', 'bulan');
+            $kasusDiselesaikanBulanan = \App\Models\PhiReport::selectRaw('bulan, COUNT(*) as total')
+                ->where('tahun', $tahun)->where('status_kasus', 'selesai')->groupBy('bulan')->pluck('total', 'bulan');
 
             // Lattas
             $pelatihanBulanan = \App\Models\LpkTraining::selectRaw('bulan, COUNT(*) as total')
@@ -91,11 +91,33 @@ Route::middleware(['web', \App\Http\Middleware\RoleMiddleware::class . ':super_a
                 'pesertaPelatihan' => collect(range(1, 12))->map(fn($m) => (int)($pesertaPelatihanBulanan[$m] ?? 0))->values()->toArray(),
             ];
 
+            $pieMetodeRaw = \App\Models\PhiReport::where('tahun', $tahun)
+                ->where('status_kasus', 'selesai')
+                ->selectRaw("COALESCE(metode_penyelesaian, 'DLL') as metode, COUNT(*) as total")
+                ->groupBy('metode')
+                ->pluck('total', 'metode')->toArray();
+            
+            // Standardize categories
+            $pieMetode = [
+                'Bipartit' => 0,
+                'Perjanjian Bersama' => 0,
+                'Anjuran' => 0,
+                'DLL' => 0,
+            ];
+            foreach($pieMetodeRaw as $k => $v) {
+                // Determine category
+                $kLow = strtolower($k);
+                if (str_contains($kLow, 'bipartit') || str_contains($kLow, 'bipartid')) $pieMetode['Bipartit'] += $v;
+                elseif (str_contains($kLow, 'perjanjian bersama') || str_contains($kLow, 'pb')) $pieMetode['Perjanjian Bersama'] += $v;
+                elseif (str_contains($kLow, 'anjuran')) $pieMetode['Anjuran'] += $v;
+                else $pieMetode['DLL'] += $v;
+            }
+
             return view('dashboard', compact(
             'totalPencariKerja', 'totalLowongan', 'totalPenempatan',
             'totalLaporanPkwt', 'totalPekerjaKwt', 'totalKasusPhi', 'totalPerusahaanPP', 'tingkatPenyelesaianPhi',
             'totalLpkAktif', 'totalLpkNonaktif', 'totalPelatihan', 'totalPeserta',
-            'chartData', 'tahun'
+            'chartData', 'pieMetode', 'tahun'
             ));
         }
         );
@@ -152,10 +174,10 @@ Route::middleware(['web', \App\Http\Middleware\RoleMiddleware::class . ':super_a
                     break;
                 case 'kasusPhi':
                     $data = \App\Models\PhiReport::where('tahun', $tahun)
-                        ->selectRaw('CONCAT("Bulan: ", bulan) as nama, sisa_bulan_lalu as detail_1, kasus_masuk as detail_2, sisa_kasus_akhir as status')
+                        ->selectRaw('nama_perusahaan as nama, COALESCE(jenis_perselisihan, "-") as detail_1, CONCAT(IFNULL(jml_org, 0), " Pekerja") as detail_2, status_kasus as status')
                         ->latest()->get();
-                    $title = 'Rekapitulasi Kasus PHI';
-                    $headers = ['No', 'Bulan', 'Sisa Kasus Lalu', 'Kasus Masuk', 'Sisa Kasus Akhir'];
+                    $title = 'Daftar Kasus PHI Masuk';
+                    $headers = ['No', 'Nama Perusahaan', 'Jenis Perselisihan', 'Jml Pekerja', 'Status Kasus'];
                     break;
                 case 'perusahaanPP':
                     $data = \App\Models\PhiPeraturanPerusahaan::where('tahun', $tahun)
@@ -165,11 +187,11 @@ Route::middleware(['web', \App\Http\Middleware\RoleMiddleware::class . ':super_a
                     $headers = ['No', 'Nama Perusahaan', 'Sektor Pekerjaan', 'Masa Berlaku (SK)', 'Status Peraturan'];
                     break;
                 case 'kasusDiselesaikan':
-                    $data = \App\Models\PhiReport::where('tahun', $tahun)
-                        ->selectRaw('CONCAT("Bulan: ", bulan) as nama, kasus_masuk as detail_1, (selesai_bipartit + selesai_pb + selesai_anjuran + selesai_lainnya) as detail_2, sisa_kasus_akhir as status')
+                    $data = \App\Models\PhiReport::where('tahun', $tahun)->where('status_kasus', 'selesai')
+                        ->selectRaw('nama_perusahaan as nama, COALESCE(jenis_perselisihan, "-") as detail_1, CONCAT(IFNULL(jml_org, 0), " Pekerja") as detail_2, COALESCE(metode_penyelesaian, "-") as status')
                         ->latest()->get();
-                    $title = 'Penyelesaian Kasus Bulanan';
-                    $headers = ['No', 'Bulan', 'Kasus Masuk', 'Berhasil Diselesaikan', 'Sisa Kasus Akhir'];
+                    $title = 'Kasus PHI Diselesaikan';
+                    $headers = ['No', 'Nama Perusahaan', 'Jenis Perselisihan', 'Jml Pekerja', 'Penyelesaian'];
                     break;
 
                 // LATTAS

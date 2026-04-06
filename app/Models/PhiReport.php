@@ -10,17 +10,22 @@ class PhiReport extends Model
         'user_id',
         'bulan',
         'tahun',
-        'sisa_bulan_lalu',
-        'kasus_masuk',
-        'selesai_bipartit',
-        'selesai_pb',
-        'selesai_anjuran',
-        'selesai_lainnya',
-        'sisa_kasus_akhir',
+        'nama_perusahaan',
+        'sektor',
+        'nama_pekerja',
+        'jml_org',
+        'mediator',
+        'jenis_perselisihan',
+        'nomor_agenda',
+        'tanggal_diterima',
+        'tanggal_diselesaikan',
+        'status_kasus',
+        'metode_penyelesaian',
         'file_path',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
-    }}
+    }
+}

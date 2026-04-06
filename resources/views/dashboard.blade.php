@@ -220,6 +220,7 @@
 <script>
 // Data Mentah dari Backend
 const rawData = @json($chartData);
+const pieMetode = @json($pieMetode);
 
 let myChartInstance = null;
 let currentCtx = null;
@@ -239,13 +240,13 @@ function hexToRgbA(hex, alpha){
 }
 
 // Fungsi Utama: Menggambar Ulang Grafik
-function renderChart(datasets) {
+function renderChart(datasets, type = 'line', customLabels = null) {
     if (myChartInstance) myChartInstance.destroy();
     
     myChartInstance = new Chart(currentCtx, {
-        type: 'line',
+        type: type,
         data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'],
+            labels: customLabels ? customLabels : ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'],
             datasets: datasets
         },
         options: {
@@ -256,13 +257,14 @@ function renderChart(datasets) {
                 legend: { position: 'top', labels: { usePointStyle: true, padding: 20, font: { size: 13, weight: '500' } } },
                 tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', titleFont: { size: 14, weight: 'bold' }, bodyFont: { size: 13 }, padding: 12, cornerRadius: 8, displayColors: true, boxPadding: 6, usePointStyle: true, borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1 }
             },
-            scales: {
+            scales: type === 'line' ? {
                 x: { grid: { display: false, drawBorder: false }, ticks: { font: { weight: '500' } } },
                 y: { grid: { color: '#f1f5f9', drawBorder: false, borderDash: [5, 5] }, beginAtZero: true, ticks: { precision: 0, stepSize: 1 } }
-            }
+            } : {}
         }
     });
 }
+
 
 // Fungsi Aksi: Saat Kartu Diklik
 window.updateChart = function(key, label, colorHex) {
@@ -275,26 +277,61 @@ window.updateChart = function(key, label, colorHex) {
     btnDetail.setAttribute('data-type', key);
     
     // Buat Gradient Khusus untuk Warna yang Dipilih
-    const gradient = currentCtx.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, hexToRgbA(colorHex, 0.5));
-    gradient.addColorStop(1, hexToRgbA(colorHex, 0.0));
+    if (key === 'kasusDiselesaikan') {
+        document.getElementById('chartTitle').innerText = 'Grafik Proporsi: Jenis Penyelesaian Kasus PHI';
+        
+        const labels = ['Bipartit', 'Perjanjian Bersama', 'Anjuran', 'Lainnya'];
+        const dataValues = [
+            pieMetode['Bipartit'] || 0,
+            pieMetode['Perjanjian Bersama'] || 0,
+            pieMetode['Anjuran'] || 0,
+            pieMetode['DLL'] || 0
+        ];
+        // Calculate total for check
+        const totalCases = dataValues.reduce((a, b) => a + b, 0);
 
-    const dataset = {
-        label: label,
-        data: rawData[key],
-        borderColor: colorHex,
-        backgroundColor: gradient,
-        borderWidth: 3,
-        pointRadius: 0,
-        pointHoverRadius: 6,
-        pointHoverBackgroundColor: '#ffffff',
-        pointHoverBorderWidth: 3,
-        pointHoverBorderColor: colorHex,
-        tension: 0.4,
-        fill: true
-    };
-    
-    renderChart([dataset]);
+        const dataset = {
+            data: dataValues,
+            backgroundColor: [
+                '#3b82f6', // blue
+                '#10b981', // green
+                '#f59e0b', // orange
+                '#64748b'  // gray
+            ],
+            borderWidth: 2,
+            hoverOffset: 8
+        };
+        
+        let displayLabels = labels.map((l, i) => l + ' (' + dataValues[i] + ')');
+        
+        if (totalCases === 0) {
+            displayLabels = ['Belum ada kasus diselesaikan'];
+            dataset.data = [1];
+            dataset.backgroundColor = ['#e2e8f0'];
+        }
+
+        renderChart([dataset], 'doughnut', displayLabels);
+    } else {
+        const gradient = currentCtx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, hexToRgbA(colorHex, 0.5));
+        gradient.addColorStop(1, hexToRgbA(colorHex, 0.0));
+
+        const dataset = {
+            label: label,
+            data: rawData[key],
+            borderColor: colorHex,
+            backgroundColor: gradient,
+            borderWidth: 3,
+            pointRadius: 0,
+            pointHoverRadius: 6,
+            pointHoverBackgroundColor: '#ffffff',
+            pointHoverBorderWidth: 3,
+            pointHoverBorderColor: colorHex,
+            tension: 0.4,
+            fill: true
+        };
+        renderChart([dataset]);
+    }
     
     // Scroll mulus ke area grafik
     document.getElementById('chartContainerArea').scrollIntoView({ behavior: 'smooth', block: 'center' });
