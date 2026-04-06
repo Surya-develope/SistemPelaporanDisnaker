@@ -150,6 +150,22 @@
                 <div class="modal-body">
                     <div class="row mb-3">
                         <div class="col-md-6">
+                            <label class="form-label">Bulan Pencatatan</label>
+                            <select name="bulan" class="form-select" required>
+                                @foreach (range(1, 12) as $m)
+                                    <option value="{{ $m }}" {{ date('n') == $m ? 'selected' : '' }}>
+                                        {{ DateTime::createFromFormat('!m', $m)->format('F') }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Tahun Pencatatan</label>
+                            <input type="number" name="tahun" class="form-control" value="{{ date('Y') }}" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
                             <label class="form-label">NIK <span class="text-danger">*</span></label>
                             <input type="text" name="nik" class="form-control" required>
                         </div>
