@@ -53,6 +53,7 @@
                 <i class="fa fa-trash me-1"></i> Hapus Terpilih
             </button>
         </div>
+    </form>
 
     <div class="table-responsive">
         <table class="table table-bordered align-middle text-center table-sm">
@@ -130,7 +131,6 @@
             </tbody>
         </table>
     </div>
-    </form>
 </div>
 
 @foreach($pengaduans as $p)

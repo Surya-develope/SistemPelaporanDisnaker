@@ -25,6 +25,9 @@ class PeraturanPerusahaanImport implements ToModel, WithHeadingRow
      */
     public function model(array $row)
     {
+        if (!array_key_exists('nama_perusahaan', $row) && !array_key_exists('total_pekerja', $row)) {
+            throw new \Exception('Format file salah! Pastikan file Excel yang diunggah sesuai dengan template.');
+        }
         // Parse date values correctly, handling both "YYYY-MM-DD" text and Excel serial numbers
         $masa_berlaku_awal = $this->transformDate($row['masa_berlaku_mulai'] ?? null);
         $masa_berlaku_akhir = $this->transformDate($row['masa_berlaku_berakhir'] ?? null);

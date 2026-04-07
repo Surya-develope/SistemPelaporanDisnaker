@@ -68,12 +68,15 @@ class PhiPkwtController extends Controller
             'file' => 'required|file|mimes:xls,xlsx,csv|max:5120',
         ]);
 
-        Excel::import(
-            new PkwtImport($request->bulan, $request->tahun),
-            $request->file('file')
-        );
-
-        return Redirect::back()->with('success', 'Data PKWT berhasil diimpor dari Excel!');
+        try {
+            Excel::import(
+                new PkwtImport($request->bulan, $request->tahun),
+                $request->file('file')
+            );
+            return Redirect::back()->with('success', 'Data PKWT berhasil diimpor dari Excel!');
+        } catch (\Exception $e) {
+            return Redirect::back()->with('error', $e->getMessage());
+        }
     }
 
     public function downloadTemplate()

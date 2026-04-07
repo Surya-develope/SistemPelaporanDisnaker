@@ -19,6 +19,9 @@ class PenempatanImport implements ToModel, WithHeadingRow
 
     public function model(array $row)
     {
+        if (!array_key_exists('nama', $row) && !array_key_exists('nama_perusahaan', $row)) {
+            throw new \Exception('Format file salah! Pastikan file Excel yang diunggah sesuai dengan template.');
+        }
         if (empty($row['nama']) || empty($row['nama_perusahaan'])) {
             return null;
         }
@@ -33,10 +36,28 @@ class PenempatanImport implements ToModel, WithHeadingRow
             'pendidikan_minimal_loker'    => $row['pendidikan_minimal_loker'] ?? null,
             'domisili_pelamar'            => $row['domisili_pelamar'] ?? null,
             'domisili_lowongan'           => $row['domisili_lowongan'] ?? null,
-            'tanggal_melamar'             => isset($row['tanggal_melamar']) && strtotime($row['tanggal_melamar']) ? date('Y-m-d', strtotime($row['tanggal_melamar'])) : null,
-            'tanggal_diterima'            => isset($row['tanggal_diterima']) && strtotime($row['tanggal_diterima']) ? date('Y-m-d', strtotime($row['tanggal_diterima'])) : null,
+            'tanggal_melamar'             => $this->parseDate($row['tanggal_melamar'] ?? null),
+            'tanggal_diterima'            => $this->parseDate($row['tanggal_diterima'] ?? null),
             'bulan'                       => $this->bulan,
             'tahun'                       => $this->tahun,
         ]);
+    }
+
+    private function parseDate($dateValue, $format = 'Y-m-d')
+    {
+        if (empty($dateValue)) return null;
+
+        if (is_numeric($dateValue)) {
+            try {
+                return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($dateValue)->format($format);
+            } catch (\Exception $e) {
+                return null;
+            }
+        }
+
+        // Replace slashes with dashes so PHP strtotime reads it as d-m-Y instead of m/d/Y
+        $dateStr = str_replace('/', '-', $dateValue);
+        $time = strtotime($dateStr);
+        return $time ? date($format, $time) : null;
     }
 }

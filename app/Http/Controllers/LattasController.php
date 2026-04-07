@@ -142,9 +142,12 @@ class LattasController extends Controller
             'file' => 'required|mimes:xls,xlsx,csv',
         ]);
 
-        Excel::import(new LpkImport($request->bulan, $request->tahun), $request->file('file'));
-
-        return Redirect::back()->with('success', 'Data Master LPK berhasil diimpor!');
+        try {
+            Excel::import(new LpkImport($request->bulan, $request->tahun), $request->file('file'));
+            return Redirect::back()->with('success', 'Data Master LPK berhasil diimpor!');
+        } catch (\Exception $e) {
+            return Redirect::back()->with('error', $e->getMessage());
+        }
     }
 
     // Proses data Pelatihan LPK
@@ -156,9 +159,12 @@ class LattasController extends Controller
             'file' => 'required|mimes:xls,xlsx,csv',
         ]);
 
-        Excel::import(new LpkTrainingImport($request->bulan, $request->tahun), $request->file('file'));
-
-        return Redirect::back()->with('success', 'Data Pelatihan LPK berhasil diimpor!');
+        try {
+            Excel::import(new LpkTrainingImport($request->bulan, $request->tahun), $request->file('file'));
+            return Redirect::back()->with('success', 'Data Pelatihan LPK berhasil diimpor!');
+        } catch (\Exception $e) {
+            return Redirect::back()->with('error', $e->getMessage());
+        }
     }
 
     // Update LPK

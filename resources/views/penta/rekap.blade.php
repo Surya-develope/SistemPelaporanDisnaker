@@ -17,8 +17,6 @@
     </div>
 </div>
 
-</div>
-
 <div class="card shadow p-3 mb-4">
     <div class="d-flex justify-content-between mb-3 align-items-center">
         <form method="GET" action="{{ url('/penta/rekap') }}" class="d-flex gap-2">
@@ -57,6 +55,7 @@
                 <i class="fa fa-trash me-1"></i> Hapus Terpilih
             </button>
         </div>
+    </form>
 
     <div class="table-responsive">
         <table class="table table-bordered table-hover align-middle">
@@ -111,7 +110,6 @@
             </tbody>
         </table>
     </div>
-    </form>
 </div>
 
 <!-- Render Modals Outside Table -->
@@ -149,8 +147,18 @@
                             <input type="text" name="nama" class="form-control" required>
                         </div>
                         <div class="col-md-6">
+                            <label class="form-label">Email Pelamar</label>
+                            <input type="email" name="email" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
                             <label class="form-label">Pendidikan Terakhir <span class="text-danger">*</span></label>
                             <input type="text" name="pendidikan_terakhir_pelamar" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Domisili Pelamar</label>
+                            <input type="text" name="domisili_pelamar" class="form-control">
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -159,8 +167,35 @@
                             <input type="text" name="judul_lowongan" class="form-control" required>
                         </div>
                         <div class="col-md-6">
+                            <label class="form-label">Kode KBJI</label>
+                            <input type="text" name="kode_kbji" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
                             <label class="form-label">Nama Perusahaan <span class="text-danger">*</span></label>
                             <input type="text" name="nama_perusahaan" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Domisili Lowongan</label>
+                            <input type="text" name="domisili_lowongan" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Pendidikan Minimal Loker</label>
+                            <input type="text" name="pendidikan_minimal_loker" class="form-control">
+                        </div>
+                        <div class="col-md-6"></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tanggal Melamar</label>
+                            <input type="date" name="tanggal_melamar" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Tanggal Diterima</label>
+                            <input type="date" name="tanggal_diterima" class="form-control">
                         </div>
                     </div>
                 </div>
@@ -174,7 +209,7 @@
 </div>
 @foreach ($penempatans as $penempatan)
 <div class="modal fade text-start" id="editPenempatanModal{{ $penempatan->id }}" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form action="{{ route('penta.update.penempatan', $penempatan->id) }}" method="POST">
                 @csrf
@@ -184,22 +219,61 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Nama Pelamar</label>
-                        <input type="text" name="nama" class="form-control" value="{{ $penempatan->nama }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Posisi Diterima (Lowongan)</label>
-                        <input type="text" name="judul_lowongan" class="form-control" value="{{ $penempatan->judul_lowongan }}" required>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nama Pelamar <span class="text-danger">*</span></label>
+                            <input type="text" name="nama" class="form-control" value="{{ $penempatan->nama }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email Pelamar</label>
+                            <input type="email" name="email" class="form-control" value="{{ $penempatan->email }}">
+                        </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">Nama Perusahaan</label>
+                            <label class="form-label">Pendidikan Terakhir <span class="text-danger">*</span></label>
+                            <input type="text" name="pendidikan_terakhir_pelamar" class="form-control" value="{{ $penempatan->pendidikan_terakhir_pelamar }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Domisili Pelamar</label>
+                            <input type="text" name="domisili_pelamar" class="form-control" value="{{ $penempatan->domisili_pelamar }}">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Posisi Diterima <span class="text-danger">*</span></label>
+                            <input type="text" name="judul_lowongan" class="form-control" value="{{ $penempatan->judul_lowongan }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Kode KBJI</label>
+                            <input type="text" name="kode_kbji" class="form-control" value="{{ $penempatan->kode_kbji }}">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nama Perusahaan <span class="text-danger">*</span></label>
                             <input type="text" name="nama_perusahaan" class="form-control" value="{{ $penempatan->nama_perusahaan }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Pendidikan Terakhir</label>
-                            <input type="text" name="pendidikan_terakhir_pelamar" class="form-control" value="{{ $penempatan->pendidikan_terakhir_pelamar }}" required>
+                            <label class="form-label">Domisili Lowongan</label>
+                            <input type="text" name="domisili_lowongan" class="form-control" value="{{ $penempatan->domisili_lowongan }}">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Pendidikan Minimal Loker</label>
+                            <input type="text" name="pendidikan_minimal_loker" class="form-control" value="{{ $penempatan->pendidikan_minimal_loker }}">
+                        </div>
+                        <div class="col-md-6"></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tanggal Melamar</label>
+                            <input type="date" name="tanggal_melamar" class="form-control" value="{{ $penempatan->tanggal_melamar }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Tanggal Diterima</label>
+                            <input type="date" name="tanggal_diterima" class="form-control" value="{{ $penempatan->tanggal_diterima }}">
                         </div>
                     </div>
                 </div>

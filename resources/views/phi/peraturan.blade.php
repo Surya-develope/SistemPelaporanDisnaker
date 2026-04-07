@@ -52,6 +52,7 @@
                 <i class="fa fa-trash me-1"></i> Hapus Terpilih
             </button>
         </div>
+    </form>
 
     <div class="table-responsive">
         <table class="table table-hover align-middle border-top">
@@ -131,7 +132,6 @@
             </tbody>
         </table>
     </div>
-    </form>
 </div>
 
 <!-- Modal Import Peraturan -->

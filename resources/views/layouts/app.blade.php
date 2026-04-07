@@ -448,5 +448,15 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{{ asset('js/bulk-delete.js') }}"></script>
+@if(session('error'))
+<script>
+    Swal.fire({
+        icon: 'error',
+        title: 'Kesalahan!',
+        text: '{{ session('error') }}',
+        confirmButtonText: 'Tutup'
+    });
+</script>
+@endif
 </body>
 </html>

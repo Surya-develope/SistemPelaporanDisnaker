@@ -24,6 +24,9 @@ class PkwtImport implements ToModel, WithHeadingRow
      */
     public function model(array $row)
     {
+        if (!array_key_exists('no_pencatatan', $row) && !array_key_exists('nama_perusahaan', $row)) {
+            throw new \Exception('Format file salah! Pastikan file Excel yang diunggah sesuai dengan template.');
+        }
         return new PkwtReport([
             'user_id' => session('user_id') ?? 1,
             'bulan' => $this->bulan,

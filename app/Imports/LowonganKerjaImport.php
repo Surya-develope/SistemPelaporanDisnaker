@@ -19,6 +19,9 @@ class LowonganKerjaImport implements ToModel, WithHeadingRow
 
     public function model(array $row)
     {
+        if (!array_key_exists('perusahaan', $row) && !array_key_exists('judul_lowongan', $row)) {
+            throw new \Exception('Format file salah! Pastikan file Excel yang diunggah sesuai dengan template.');
+        }
         if (empty($row['judul_lowongan']) || empty($row['perusahaan'])) {
             return null;
         }
@@ -45,10 +48,28 @@ class LowonganKerjaImport implements ToModel, WithHeadingRow
             'kuota'                 => $kuota,
             'kuota_sisa'            => $kuota_sisa,
             'status_lowongan'       => $row['status_lowongan'] ?? 'open',
-            'tanggal_posting'       => isset($row['tanggal_posting']) && strtotime($row['tanggal_posting']) ? date('Y-m-d', strtotime($row['tanggal_posting'])) : null,
-            'tanggal_kadaluwarsa'   => isset($row['tanggal_kadaluwarsa']) && strtotime($row['tanggal_kadaluwarsa']) ? date('Y-m-d H:i:s', strtotime($row['tanggal_kadaluwarsa'])) : null,
+            'tanggal_posting'       => $this->parseDate($row['tanggal_posting'] ?? null),
+            'tanggal_kadaluwarsa'   => $this->parseDate($row['tanggal_kadaluwarsa'] ?? null, 'Y-m-d H:i:s'),
             'bulan'                 => $this->bulan,
             'tahun'                 => $this->tahun,
         ]);
+    }
+
+    private function parseDate($dateValue, $format = 'Y-m-d')
+    {
+        if (empty($dateValue)) return null;
+
+        if (is_numeric($dateValue)) {
+            try {
+                return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($dateValue)->format($format);
+            } catch (\Exception $e) {
+                return null;
+            }
+        }
+
+        // Replace slashes with dashes so PHP strtotime reads it as d-m-Y instead of m/d/Y
+        $dateStr = str_replace('/', '-', $dateValue);
+        $time = strtotime($dateStr);
+        return $time ? date($format, $time) : null;
     }
 }

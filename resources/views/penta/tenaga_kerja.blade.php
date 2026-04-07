@@ -70,6 +70,7 @@
                 <i class="fa fa-trash me-1"></i> Hapus Terpilih
             </button>
         </div>
+    </form>
 
     <div class="table-responsive">
         <table class="table table-bordered table-hover align-middle">
@@ -132,7 +133,6 @@
             </tbody>
         </table>
     </div>
-    </form>
 </div>
 
 <!-- Render Modals Outside Table -->
@@ -176,6 +176,30 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">No HP <span class="text-danger">*</span></label>
+                            <input type="text" name="no_hp" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tempat Tanggal Lahir <span class="text-danger">*</span></label>
+                            <input type="text" name="tempat_tanggal_lahir" class="form-control" placeholder="Contoh: Jakarta, 01 Januari 2000" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Alamat Domisili <span class="text-danger">*</span></label>
+                            <input type="text" name="alamat_domisili" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Domisili <span class="text-danger">*</span></label>
+                            <input type="text" name="domisili" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
                             <label class="form-label">Jenis Kelamin <span class="text-danger">*</span></label>
                             <select name="jenis_kelamin" class="form-select" required>
                                 <option value="">-- Pilih --</option>
@@ -183,17 +207,29 @@
                                 <option value="P">Perempuan</option>
                             </select>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Domisili <span class="text-danger">*</span></label>
-                            <input type="text" name="domisili" class="form-control" required>
-                        </div>
                     </div>
                     <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Kondisi Fisik</label>
+                            <input type="text" name="kondisi_fisik" class="form-control">
+                        </div>
                         <div class="col-md-6">
                             <label class="form-label">Pendidikan Terakhir</label>
                             <input type="text" name="pendidikan_terakhir" class="form-control">
                         </div>
+                    </div>
+                    <div class="row mb-3">
                         <div class="col-md-6">
+                            <label class="form-label">Jurusan</label>
+                            <input type="text" name="jurusan" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Tanggal Daftar</label>
+                            <input type="date" name="tanggal_daftar" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
                             <label class="form-label">Status Verifikasi <span class="text-danger">*</span></label>
                             <select name="status_verifikasi" class="form-select" required>
                                 <option value="BELUM DIVERIFIKASI">BELUM DIVERIFIKASI</option>
@@ -228,33 +264,71 @@
                             <input type="text" name="nik" class="form-control" value="{{ $pencari->nik }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Status Verifikasi</label>
-                            <select name="status_verifikasi" class="form-select">
-                                <option value="DIVERIFIKASI" {{ $pencari->status_verifikasi == 'DIVERIFIKASI' ? 'selected' : '' }}>DIVERIFIKASI</option>
-                                <option value="BELUM DIVERIFIKASI" {{ $pencari->status_verifikasi == 'BELUM DIVERIFIKASI' ? 'selected' : '' }}>BELUM DIVERIFIKASI</option>
-                            </select>
+                            <label class="form-label">Nama Lengkap</label>
+                            <input type="text" name="nama" class="form-control" value="{{ $pencari->nama }}" required>
                         </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Nama Lengkap</label>
-                        <input type="text" name="nama" class="form-control" value="{{ $pencari->nama }}" required>
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" value="{{ $pencari->email }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">No HP</label>
+                            <input type="text" name="no_hp" class="form-control" value="{{ $pencari->no_hp }}" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tempat Tanggal Lahir</label>
+                            <input type="text" name="tempat_tanggal_lahir" class="form-control" value="{{ $pencari->tempat_tanggal_lahir }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Alamat Domisili</label>
+                            <input type="text" name="alamat_domisili" class="form-control" value="{{ $pencari->alamat_domisili }}" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Domisili</label>
+                            <input type="text" name="domisili" class="form-control" value="{{ $pencari->domisili }}" required>
+                        </div>
+                        <div class="col-md-6">
                             <label class="form-label">Jenis Kelamin</label>
-                            <select name="jenis_kelamin" class="form-select">
+                            <select name="jenis_kelamin" class="form-select" required>
                                 <option value="L" {{ $pencari->jenis_kelamin == 'L' ? 'selected' : '' }}>Laki-laki</option>
                                 <option value="P" {{ $pencari->jenis_kelamin == 'P' ? 'selected' : '' }}>Perempuan</option>
                             </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Kondisi Fisik</label>
+                            <input type="text" name="kondisi_fisik" class="form-control" value="{{ $pencari->kondisi_fisik }}">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Pendidikan Terakhir</label>
                             <input type="text" name="pendidikan_terakhir" class="form-control" value="{{ $pencari->pendidikan_terakhir }}">
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Domisili</label>
-                        <input type="text" name="domisili" class="form-control" value="{{ $pencari->domisili }}" required>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Jurusan</label>
+                            <input type="text" name="jurusan" class="form-control" value="{{ $pencari->jurusan }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Tanggal Daftar</label>
+                            <input type="date" name="tanggal_daftar" class="form-control" value="{{ $pencari->tanggal_daftar ? \Carbon\Carbon::parse($pencari->tanggal_daftar)->format('Y-m-d') : '' }}">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Status Verifikasi</label>
+                            <select name="status_verifikasi" class="form-select" required>
+                                <option value="DIVERIFIKASI" {{ $pencari->status_verifikasi == 'DIVERIFIKASI' ? 'selected' : '' }}>DIVERIFIKASI</option>
+                                <option value="BELUM DIVERIFIKASI" {{ $pencari->status_verifikasi == 'BELUM DIVERIFIKASI' ? 'selected' : '' }}>BELUM DIVERIFIKASI</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -281,7 +355,7 @@
                     <div class="alert alert-info py-2">
                         <small>
                             <strong>Info:</strong> Pastikan format header Excel sesuai. 
-                            <br>Format: <code>nik</code>, <code>nama</code>, <code>jenis_kelamin</code>, <code>pendidikan_terakhir</code>, <code>status_verifikasi</code>
+                            <br>Format: <code>nik</code>, <code>nama</code>, <code>email</code>, <code>no_hp</code>, <code>tempat_tanggal_lahir</code>, <code>alamat_domisili</code>, <code>domisili</code>, <code>jenis_kelamin</code>, <code>kondisi_fisik</code>, <code>pendidikan_terakhir</code>, <code>jurusan</code>, <code>tanggal_daftar</code>, <code>status_verifikasi</code>
                             <br>
                             <a href="{{ route('penta.template.pencari') }}" class="fw-bold text-decoration-none"><i class="fa fa-download"></i> Unduh Template</a>
                         </small>

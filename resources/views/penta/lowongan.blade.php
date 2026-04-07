@@ -67,6 +67,7 @@
                 <i class="fa fa-trash me-1"></i> Hapus Terpilih
             </button>
         </div>
+    </form>
 
     <div class="table-responsive">
         <table class="table table-bordered table-hover align-middle">
@@ -133,7 +134,6 @@
             </tbody>
         </table>
     </div>
-    </form>
 </div>
 
 <!-- Render Modals Outside Table -->
@@ -176,25 +176,69 @@
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-md-6">
+                        <div class="col-md-12">
+                            <label class="form-label">Deskripsi Pekerjaan</label>
+                            <textarea name="deskripsi_pekerjaan" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Kategori Pekerjaan</label>
+                            <input type="text" name="kategori_pekerjaan" class="form-control">
+                        </div>
+                        <div class="col-md-4">
                             <label class="form-label">Tipe Pekerjaan</label>
                             <input type="text" name="tipe_pekerjaan" class="form-control">
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
+                            <label class="form-label">Sektor Pekerjaan</label>
+                            <input type="text" name="sektor_pekerjaan" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Fungsi Pekerjaan</label>
+                            <input type="text" name="fungsi_pekerjaan" class="form-control">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Kode KBJI</label>
+                            <input type="text" name="kode_kbji" class="form-control">
+                        </div>
+                        <div class="col-md-4">
                             <label class="form-label">Pendidikan Minimal</label>
                             <input type="text" name="minimal_pendidikan" class="form-control">
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Keahlian Diperlukan</label>
+                            <input type="text" name="keahlian_diperlukan" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Kebutuhan Disabilitas</label>
+                            <input type="text" name="kebutuhan_disabilitas" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3">
                             <label class="form-label">Kuota Awal <span class="text-danger">*</span></label>
                             <input type="number" name="kuota" class="form-control" required min="0">
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label class="form-label">Sisa Kuota <span class="text-danger">*</span></label>
                             <input type="number" name="kuota_sisa" class="form-control" required min="0">
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <label class="form-label">Tanggal Posting</label>
+                            <input type="date" name="tanggal_posting" class="form-control">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Tgl Kadaluwarsa</label>
+                            <input type="date" name="tanggal_kadaluwarsa" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
                             <label class="form-label">Status <span class="text-danger">*</span></label>
                             <select name="status_lowongan" class="form-select" required>
                                 <option value="open">Open / Tersedia</option>
@@ -298,7 +342,7 @@
 </div>
 
 <div class="modal fade text-start" id="editLowonganModal{{ $loker->id }}" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form action="{{ route('penta.update.lowongan', $loker->id) }}" method="POST">
                 @csrf
@@ -308,35 +352,87 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Posisi / Judul</label>
-                        <input type="text" name="judul_lowongan" class="form-control" value="{{ $loker->judul_lowongan }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Perusahaan</label>
-                        <input type="text" name="perusahaan" class="form-control" value="{{ $loker->perusahaan }}" required>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Posisi / Judul <span class="text-danger">*</span></label>
+                            <input type="text" name="judul_lowongan" class="form-control" value="{{ $loker->judul_lowongan }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Perusahaan <span class="text-danger">*</span></label>
+                            <input type="text" name="perusahaan" class="form-control" value="{{ $loker->perusahaan }}" required>
+                        </div>
                     </div>
                     <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Deskripsi Pekerjaan</label>
+                            <textarea name="deskripsi_pekerjaan" class="form-control" rows="2">{{ $loker->deskripsi_pekerjaan }}</textarea>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Kategori Pekerjaan</label>
+                            <input type="text" name="kategori_pekerjaan" class="form-control" value="{{ $loker->kategori_pekerjaan }}">
+                        </div>
                         <div class="col-md-6">
                             <label class="form-label">Tipe Pekerjaan</label>
                             <input type="text" name="tipe_pekerjaan" class="form-control" value="{{ $loker->tipe_pekerjaan }}">
                         </div>
+                    </div>
+                    <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">Status</label>
-                            <select name="status_lowongan" class="form-select">
-                                <option value="open" {{ in_array(strtolower($loker->status_lowongan), ['open', 'tersedia']) ? 'selected' : '' }}>Open / Tersedia</option>
-                                <option value="closed" {{ in_array(strtolower($loker->status_lowongan), ['closed', 'tutup']) ? 'selected' : '' }}>Closed / Tutup</option>
-                            </select>
+                            <label class="form-label">Sektor Pekerjaan</label>
+                            <input type="text" name="sektor_pekerjaan" class="form-control" value="{{ $loker->sektor_pekerjaan }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Fungsi Pekerjaan</label>
+                            <input type="text" name="fungsi_pekerjaan" class="form-control" value="{{ $loker->fungsi_pekerjaan }}">
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">Kuota Awal</label>
-                            <input type="number" name="kuota" class="form-control" value="{{ $loker->kuota }}" required min="0">
+                            <label class="form-label">Kode KBJI</label>
+                            <input type="text" name="kode_kbji" class="form-control" value="{{ $loker->kode_kbji }}">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Sisa Kuota</label>
+                            <label class="form-label">Pendidikan Minimal</label>
+                            <input type="text" name="minimal_pendidikan" class="form-control" value="{{ $loker->minimal_pendidikan }}">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Keahlian Diperlukan</label>
+                            <input type="text" name="keahlian_diperlukan" class="form-control" value="{{ $loker->keahlian_diperlukan }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Kebutuhan Disabilitas</label>
+                            <input type="text" name="kebutuhan_disabilitas" class="form-control" value="{{ $loker->kebutuhan_disabilitas }}">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tanggal Posting</label>
+                            <input type="date" name="tanggal_posting" class="form-control" value="{{ $loker->tanggal_posting ? \Carbon\Carbon::parse($loker->tanggal_posting)->format('Y-m-d') : '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Tanggal Kadaluwarsa</label>
+                            <input type="date" name="tanggal_kadaluwarsa" class="form-control" value="{{ $loker->tanggal_kadaluwarsa ? \Carbon\Carbon::parse($loker->tanggal_kadaluwarsa)->format('Y-m-d') : '' }}">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Kuota Awal <span class="text-danger">*</span></label>
+                            <input type="number" name="kuota" class="form-control" value="{{ $loker->kuota }}" required min="0">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Sisa Kuota <span class="text-danger">*</span></label>
                             <input type="number" name="kuota_sisa" class="form-control" value="{{ $loker->kuota_sisa }}" required min="0">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Status <span class="text-danger">*</span></label>
+                            <select name="status_lowongan" class="form-select" required>
+                                <option value="open" {{ in_array(strtolower($loker->status_lowongan), ['open', 'tersedia']) ? 'selected' : '' }}>Open / Tersedia</option>
+                                <option value="closed" {{ in_array(strtolower($loker->status_lowongan), ['closed', 'tutup']) ? 'selected' : '' }}>Closed / Tutup</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -364,7 +460,7 @@
                     <div class="alert alert-info py-2">
                         <small>
                             <strong>Info:</strong> Pastikan format header Excel sesuai. 
-                            <br>Format: <code>judul_lowongan</code>, <code>perusahaan</code>, <code>kuota</code>, <code>status_lowongan</code>
+                            <br>Format: <code>judul_lowongan</code>, <code>deskripsi_pekerjaan</code>, <code>perusahaan</code>, <code>kategori_pekerjaan</code>, <code>tipe_pekerjaan</code>, <code>sektor_pekerjaan</code>, <code>fungsi_pekerjaan</code>, <code>kode_kbji</code>, <code>minimal_pendidikan</code>, <code>keahlian_diperlukan</code>, <code>kebutuhan_disabilitas</code>, <code>kuota</code>, <code>kuota_sisa</code>, <code>status_lowongan</code>, <code>tanggal_posting</code>, <code>tanggal_kadaluwarsa</code>
                             <br>
                             <a href="{{ route('penta.template.lowongan') }}" class="fw-bold text-decoration-none"><i class="fa fa-download"></i> Unduh Template Excel</a>
                         </small>

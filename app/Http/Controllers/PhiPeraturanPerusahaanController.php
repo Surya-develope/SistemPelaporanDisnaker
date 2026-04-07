@@ -112,9 +112,12 @@ class PhiPeraturanPerusahaanController extends Controller
             'file' => 'required|mimes:xls,xlsx,csv'
         ]);
 
-        Excel::import(new PeraturanPerusahaanImport($request->bulan, $request->tahun), $request->file('file'));
-
-        return Redirect::back()->with('success', 'Data Peraturan Perusahaan berhasil diimpor!');
+        try {
+            Excel::import(new PeraturanPerusahaanImport($request->bulan, $request->tahun), $request->file('file'));
+            return Redirect::back()->with('success', 'Data Peraturan Perusahaan berhasil diimpor!');
+        } catch (\Exception $e) {
+            return Redirect::back()->with('error', $e->getMessage());
+        }
     }
 
     public function export(Request $request)

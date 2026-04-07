@@ -38,11 +38,27 @@ class PentaController extends Controller
         $no = 1;
         foreach ($data as $row) {
             $exportData[] = [
-                $no++, $row->judul_lowongan, $row->perusahaan, $row->tipe_pekerjaan, $row->kuota, $row->kuota_sisa, $row->status_lowongan, $row->tanggal_posting
+                $no++, 
+                $row->judul_lowongan,
+                $row->deskripsi_pekerjaan,
+                $row->perusahaan,
+                $row->kategori_pekerjaan,
+                $row->tipe_pekerjaan,
+                $row->sektor_pekerjaan,
+                $row->fungsi_pekerjaan,
+                $row->kode_kbji,
+                $row->minimal_pendidikan,
+                $row->keahlian_diperlukan,
+                $row->kebutuhan_disabilitas,
+                $row->kuota,
+                $row->kuota_sisa,
+                $row->status_lowongan,
+                $row->tanggal_posting ? \Carbon\Carbon::parse($row->tanggal_posting)->format('Y-m-d') : null,
+                $row->tanggal_kadaluwarsa ? \Carbon\Carbon::parse($row->tanggal_kadaluwarsa)->format('Y-m-d H:i:s') : null,
             ];
         }
 
-        $headings = ['No', 'Judul Lowongan', 'Perusahaan', 'Tipe', 'Kuota', 'Sisa Kuota', 'Status', 'Tanggal Posting'];
+        $headings = ['NO', 'JUDUL LOWONGAN', 'DESKRIPSI PEKERJAAN', 'PERUSAHAAN', 'KATEGORI PEKERJAAN', 'TIPE PEKERJAAN', 'SEKTOR PEKERJAAN', 'FUNGSI PEKERJAAN', 'KODE KBJI', 'MINIMAL PENDIDIKAN', 'KEAHLIAN DIPERLUKAN', 'KEBUTUHAN DISABILITAS', 'KUOTA', 'KUOTA SISA', 'STATUS LOWONGAN', 'TANGGAL POSTING', 'TANGGAL KADALUWARSA'];
         return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericDataExport($exportData, $headings), 'lowongan_kerja.xlsx');
     }
 
@@ -68,11 +84,24 @@ class PentaController extends Controller
         $no = 1;
         foreach ($data as $row) {
             $exportData[] = [
-                $no++, $row->nik, $row->nama_lengkap, $row->jenis_kelamin, $row->pendidikan_terakhir, $row->umur, $row->kategori_keahlian, $row->status_bekerja, $row->tanggal_daftar
+                $no++, 
+                $row->nik, 
+                $row->nama, 
+                $row->email, 
+                $row->no_hp, 
+                $row->tempat_tanggal_lahir, 
+                $row->alamat_domisili, 
+                $row->domisili, 
+                $row->jenis_kelamin, 
+                $row->kondisi_fisik, 
+                $row->pendidikan_terakhir, 
+                $row->jurusan, 
+                $row->tanggal_daftar ? \Carbon\Carbon::parse($row->tanggal_daftar)->format('Y-m-d') : null, 
+                $row->status_verifikasi
             ];
         }
 
-        $headings = ['No', 'NIK', 'Nama Lengkap', 'Jenis Kelamin', 'Pendidikan', 'Umur', 'Keahlian', 'Status', 'Tanggal Daftar'];
+        $headings = ['NO', 'NIK', 'NAMA', 'EMAIL', 'NO HP', 'TEMPAT TANGGAL LAHIR', 'ALAMAT DOMISILI', 'DOMISILI', 'JENIS KELAMIN', 'KONDISI FISIK', 'PENDIDIKAN TERAKHIR', 'JURUSAN', 'TANGGAL DAFTAR', 'STATUS VERIFIKASI'];
         return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericDataExport($exportData, $headings), 'pencari_kerja.xlsx');
     }
 
@@ -98,30 +127,41 @@ class PentaController extends Controller
         $no = 1;
         foreach ($data as $row) {
             $exportData[] = [
-                $no++, $row->nik, $row->nama_pekerja, $row->perusahaan, $row->jabatan, $row->status_penempatan, $row->tanggal_diterima
+                $no++, 
+                $row->nama, 
+                $row->email, 
+                $row->judul_lowongan, 
+                $row->kode_kbji, 
+                $row->nama_perusahaan, 
+                $row->pendidikan_terakhir_pelamar, 
+                $row->pendidikan_minimal_loker, 
+                $row->domisili_pelamar, 
+                $row->domisili_lowongan, 
+                $row->tanggal_melamar ? \Carbon\Carbon::parse($row->tanggal_melamar)->format('Y-m-d') : null, 
+                $row->tanggal_diterima ? \Carbon\Carbon::parse($row->tanggal_diterima)->format('Y-m-d') : null
             ];
         }
 
-        $headings = ['No', 'NIK', 'Nama Pekerja', 'Perusahaan', 'Jabatan', 'Status', 'Tanggal Diterima'];
+        $headings = ['NO', 'NAMA', 'EMAIL', 'JUDUL LOWONGAN', 'KODE KBJI', 'NAMA PERUSAHAAN', 'PENDIDIKAN TERAKHIR PELAMAR', 'PENDIDIKAN MINIMAL LOKER', 'DOMISILI PELAMAR', 'DOMISILI LOWONGAN', 'TANGGAL MELAMAR', 'TANGGAL DITERIMA'];
         return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericDataExport($exportData, $headings), 'penempatan_kerja.xlsx');
     }
 
 
     public function templateLowongan()
     {
-        $headings = ['judul_lowongan', 'perusahaan', 'kuota', 'status_lowongan'];
+        $headings = ['JUDUL LOWONGAN', 'DESKRIPSI PEKERJAAN', 'PERUSAHAAN', 'KATEGORI PEKERJAAN', 'TIPE PEKERJAAN', 'SEKTOR PEKERJAAN', 'FUNGSI PEKERJAAN', 'KODE KBJI', 'MINIMAL PENDIDIKAN', 'KEAHLIAN DIPERLUKAN', 'KEBUTUHAN DISABILITAS', 'KUOTA', 'KUOTA SISA', 'STATUS LOWONGAN', 'TANGGAL POSTING', 'TANGGAL KADALUWARSA'];
         return Excel::download(new \App\Exports\GenericDataExport([], $headings), 'template_lowongan_penta.xlsx');
     }
 
     public function templatePencari()
     {
-        $headings = ['nik', 'nama', 'jenis_kelamin', 'pendidikan_terakhir', 'status_verifikasi'];
+        $headings = ['NIK', 'NAMA', 'EMAIL', 'NO HP', 'TEMPAT TANGGAL LAHIR', 'ALAMAT DOMISILI', 'DOMISILI', 'JENIS KELAMIN', 'KONDISI FISIK', 'PENDIDIKAN TERAKHIR', 'JURUSAN', 'TANGGAL DAFTAR', 'STATUS VERIFIKASI'];
         return Excel::download(new \App\Exports\GenericDataExport([], $headings), 'template_pencari_penta.xlsx');
     }
 
     public function templatePenempatan()
     {
-        $headings = ['nama', 'nama_perusahaan', 'judul_lowongan', 'tanggal_diterima'];
+        $headings = ['NAMA', 'EMAIL', 'JUDUL LOWONGAN', 'KODE KBJI', 'NAMA PERUSAHAAN', 'PENDIDIKAN TERAKHIR PELAMAR', 'PENDIDIKAN MINIMAL LOKER', 'DOMISILI PELAMAR', 'DOMISILI LOWONGAN', 'TANGGAL MELAMAR', 'TANGGAL DITERIMA'];
         return Excel::download(new \App\Exports\GenericDataExport([], $headings), 'template_penempatan_penta.xlsx');
     }
 
@@ -132,8 +172,12 @@ class PentaController extends Controller
             'tahun' => 'required|integer|min:2000|max:2100',
             'file' => 'required|mimes:xls,xlsx,csv',
         ]);
-        Excel::import(new LowonganKerjaImport($request->bulan, $request->tahun), $request->file('file'));
-        return Redirect::back()->with('success', 'Data Lowongan Kerja berhasil diimpor!');
+        try {
+            Excel::import(new LowonganKerjaImport($request->bulan, $request->tahun), $request->file('file'));
+            return Redirect::back()->with('success', 'Data Lowongan Kerja berhasil diimpor!');
+        } catch (\Exception $e) {
+            return Redirect::back()->with('error', $e->getMessage());
+        }
     }
 
     public function importPencari(Request $request)
@@ -143,8 +187,12 @@ class PentaController extends Controller
             'tahun' => 'required|integer|min:2000|max:2100',
             'file' => 'required|mimes:xls,xlsx,csv',
         ]);
-        Excel::import(new PencariKerjaImport($request->bulan, $request->tahun), $request->file('file'));
-        return Redirect::back()->with('success', 'Data Pencari Kerja Aktif berhasil diimpor!');
+        try {
+            Excel::import(new PencariKerjaImport($request->bulan, $request->tahun), $request->file('file'));
+            return Redirect::back()->with('success', 'Data Pencari Kerja Aktif berhasil diimpor!');
+        } catch (\Exception $e) {
+            return Redirect::back()->with('error', $e->getMessage());
+        }
     }
 
     public function importPenempatan(Request $request)
@@ -154,19 +202,33 @@ class PentaController extends Controller
             'tahun' => 'required|integer|min:2000|max:2100',
             'file' => 'required|mimes:xls,xlsx,csv',
         ]);
-        Excel::import(new PenempatanImport($request->bulan, $request->tahun), $request->file('file'));
-        return Redirect::back()->with('success', 'Data Penempatan berhasil diimpor!');
+        try {
+            Excel::import(new PenempatanImport($request->bulan, $request->tahun), $request->file('file'));
+            return Redirect::back()->with('success', 'Data Penempatan berhasil diimpor!');
+        } catch (\Exception $e) {
+            return Redirect::back()->with('error', $e->getMessage());
+        }
     }
 
     public function updateLowongan(Request $request, $id)
     {
         $request->validate([
             'judul_lowongan' => 'required|string',
+            'deskripsi_pekerjaan' => 'nullable|string',
             'perusahaan' => 'required|string',
+            'kategori_pekerjaan' => 'nullable|string',
             'tipe_pekerjaan' => 'nullable|string',
+            'sektor_pekerjaan' => 'nullable|string',
+            'fungsi_pekerjaan' => 'nullable|string',
+            'kode_kbji' => 'nullable|string',
+            'minimal_pendidikan' => 'nullable|string',
+            'keahlian_diperlukan' => 'nullable|string',
+            'kebutuhan_disabilitas' => 'nullable|string',
             'kuota' => 'required|integer|min:0',
             'kuota_sisa' => 'required|integer|min:0',
             'status_lowongan' => 'required|string',
+            'tanggal_posting' => 'nullable|date',
+            'tanggal_kadaluwarsa' => 'nullable|date',
         ]);
 
         $lowongan = LowonganKerja::findOrFail($id);
@@ -180,9 +242,16 @@ class PentaController extends Controller
         $request->validate([
             'nik' => 'required|string',
             'nama' => 'required|string',
-            'jenis_kelamin' => 'required|in:L,P',
+            'email' => 'nullable|email',
+            'no_hp' => 'required|string',
+            'tempat_tanggal_lahir' => 'required|string',
+            'alamat_domisili' => 'required|string',
             'domisili' => 'required|string',
+            'jenis_kelamin' => 'required|in:L,P',
+            'kondisi_fisik' => 'nullable|string',
             'pendidikan_terakhir' => 'nullable|string',
+            'jurusan' => 'nullable|string',
+            'tanggal_daftar' => 'nullable|date',
             'status_verifikasi' => 'required|string',
         ]);
 
@@ -232,12 +301,21 @@ class PentaController extends Controller
     {
         $request->validate([
             'judul_lowongan' => 'required|string',
+            'deskripsi_pekerjaan' => 'nullable|string',
             'perusahaan' => 'required|string',
+            'kategori_pekerjaan' => 'nullable|string',
             'tipe_pekerjaan' => 'nullable|string',
+            'sektor_pekerjaan' => 'nullable|string',
+            'fungsi_pekerjaan' => 'nullable|string',
+            'kode_kbji' => 'nullable|string',
+            'minimal_pendidikan' => 'nullable|string',
+            'keahlian_diperlukan' => 'nullable|string',
+            'kebutuhan_disabilitas' => 'nullable|string',
             'kuota' => 'required|integer|min:0',
             'kuota_sisa' => 'required|integer|min:0',
             'status_lowongan' => 'required|string',
-            'minimal_pendidikan' => 'nullable|string',
+            'tanggal_posting' => 'nullable|date',
+            'tanggal_kadaluwarsa' => 'nullable|date',
         ]);
 
         $data = $request->all();
@@ -255,16 +333,23 @@ class PentaController extends Controller
         $request->validate([
             'nik' => 'required|string',
             'nama' => 'required|string',
-            'jenis_kelamin' => 'required|in:L,P',
+            'email' => 'nullable|email',
+            'no_hp' => 'required|string',
+            'tempat_tanggal_lahir' => 'required|string',
+            'alamat_domisili' => 'required|string',
             'domisili' => 'required|string',
+            'jenis_kelamin' => 'required|in:L,P',
+            'kondisi_fisik' => 'nullable|string',
             'pendidikan_terakhir' => 'nullable|string',
+            'jurusan' => 'nullable|string',
+            'tanggal_daftar' => 'nullable|date',
             'status_verifikasi' => 'required|string',
         ]);
 
         $data = $request->all();
         $data['bulan'] = $request->bulan ?? date('n');
         $data['tahun'] = $request->tahun ?? date('Y');
-        $data['tanggal_daftar'] = $request->tanggal_daftar ?? date('Y-m-d');
+        $data['tanggal_daftar'] = $data['tanggal_daftar'] ?? date('Y-m-d');
 
         PencariKerja::create($data);
 

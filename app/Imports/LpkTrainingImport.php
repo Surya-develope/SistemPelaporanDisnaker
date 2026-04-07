@@ -25,6 +25,9 @@ class LpkTrainingImport implements ToModel, WithHeadingRow
     */
     public function model(array $row)
     {
+        if (!array_key_exists('nama_lpk', $row) && !array_key_exists('program_pelatihan', $row)) {
+            throw new \Exception('Format file salah! Pastikan file Excel yang diunggah sesuai dengan template.');
+        }
         // Skip if LPK name is empty
         if (empty($row['nama_lpk'])) {
             return null;

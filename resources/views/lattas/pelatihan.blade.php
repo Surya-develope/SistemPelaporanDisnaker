@@ -48,6 +48,7 @@
                 <i class="fa fa-trash me-1"></i> Hapus Terpilih
             </button>
         </div>
+    </form>
 
     <div class="table-responsive">
     <table class="table table-bordered table-striped text-center align-middle">
@@ -104,7 +105,6 @@
         </tfoot>
     </table>
     </div>
-    </form>
 </div>
 
 <!-- Render Modals Outside Table -->
