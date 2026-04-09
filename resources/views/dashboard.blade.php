@@ -14,11 +14,30 @@
 </style>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="m-0 fw-bold">Dashboard Statistik</h4>
-    <div>
-        <a href="{{ route('dashboard.export') }}" class="btn btn-success btn-sm shadow-sm d-print-none me-2">
-            <i class="fa fa-file-excel me-1"></i> Cetak Excel
-        </a>
+    <div class="d-flex align-items-center">
+        <h4 class="m-0 fw-bold me-3">Dashboard Statistik</h4>
+        <form action="{{ url('/') }}" method="GET" id="dashboardFilterForm" class="m-0 d-print-none">
+            <div class="input-group input-group-sm shadow-sm" style="width: 130px;">
+                <span class="input-group-text bg-white border-end-0"><i class="fa fa-calendar-alt text-muted"></i></span>
+                <select name="tahun" class="form-select border-start-0 ps-0 fw-bold text-primary" onchange="document.getElementById('dashboardFilterForm').submit()">
+                    @for ($y = date('Y') + 1; $y >= 2020; $y--)
+                        <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>{{ $y }}</option>
+                    @endfor
+                </select>
+            </div>
+        </form>
+    </div>
+    <div class="d-flex align-items-center">
+        <form action="{{ route('dashboard.export') }}" method="GET" class="d-flex align-items-center me-2 d-print-none">
+            <select name="tahun" class="form-select form-select-sm me-2 shadow-sm" style="width: 100px;">
+                @for ($y = date('Y') + 1; $y >= 2020; $y--)
+                    <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>{{ $y }}</option>
+                @endfor
+            </select>
+            <button type="submit" class="btn btn-success btn-sm shadow-sm">
+                <i class="fa fa-file-excel me-1"></i> Cetak Excel
+            </button>
+        </form>
         <button onclick="window.print()" class="btn btn-outline-secondary btn-sm shadow-sm d-print-none">
             <i class="fa fa-print me-1"></i> Cetak Laporan
         </button>
@@ -391,37 +410,66 @@ document.addEventListener("DOMContentLoaded", function () {
     resetChart();
 });
 
+let currentDetailType = '';
+
 // Fungsi Fetch Detail JSON dan Tampilkan Modal
 window.viewDetail = function(type) {
-    const tahun = {{ $tahun }};
-    const modalTitle = document.getElementById('detailModalTitle');
-    const tbody = document.getElementById('detailModalBody');
+    currentDetailType = type;
     
-    modalTitle.innerText = "Memuat data...";
-    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4"><i class="fa fa-spinner fa-spin fa-2x text-primary"></i></td></tr>';
-    
-    const modal = new bootstrap.Modal(document.getElementById('detailModal'));
-    modal.show();
+    // Gunakan filter tahun global dari dashboard
+    let tahun = '{{ $tahun }}';
 
-    fetch(`/dashboard/detail/${type}?tahun=${tahun}`)
-        .then(response => response.json())
+    const modalEl = document.getElementById('detailModal');
+    let modal = bootstrap.Modal.getInstance(modalEl);
+    if (!modal) {
+        modal = new bootstrap.Modal(modalEl);
+    }
+    
+    // Only show if not currently visible
+    if (!modalEl.classList.contains('show')) {
+        modal.show();
+    }
+
+    const queryParams = new URLSearchParams();
+    if (tahun) queryParams.append('tahun', tahun);
+
+    // Set loading text and spinner
+    const titleEl = document.getElementById('modalTitleText');
+    if (titleEl) titleEl.innerText = "Memuat data...";
+    const tbodyLoading = document.getElementById('detailModalBody');
+    if (tbodyLoading) {
+        tbodyLoading.innerHTML = '<tr><td colspan="5" class="text-center py-4"><i class="fa fa-spinner fa-spin fa-2x text-primary"></i></td></tr>';
+    }
+
+    fetch(`/dashboard/detail/${type}?${queryParams.toString()}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(res => {
-            modalTitle.innerText = res.title + " (" + tahun + ")";
-            tbody.innerHTML = '';
+            const titleEl = document.getElementById('modalTitleText');
+            if (titleEl) titleEl.innerText = `${res.title} (Tahun ${tahun})`;
+            
+            const tbodyInstance = document.getElementById('detailModalBody');
+            tbodyInstance.innerHTML = '';
             
             if (res.headers) {
                 const thead = document.querySelector('#detailModal table thead tr');
-                thead.innerHTML = `
-                    <th width="5%" class="text-center">${res.headers[0]}</th>
-                    <th width="30%">${res.headers[1]}</th>
-                    <th width="25%">${res.headers[2]}</th>
-                    <th width="20%" class="text-center">${res.headers[3]}</th>
-                    <th width="20%" class="text-center">${res.headers[4]}</th>
-                `;
+                if (thead) {
+                    thead.innerHTML = `
+                        <th width="5%" class="text-center">${res.headers[0] || 'No'}</th>
+                        <th width="30%">${res.headers[1] || '-'}</th>
+                        <th width="25%">${res.headers[2] || '-'}</th>
+                        <th width="20%" class="text-center">${res.headers[3] || '-'}</th>
+                        <th width="20%" class="text-center">${res.headers[4] || '-'}</th>
+                    `;
+                }
             }
             
-            if(res.data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">Tidak ada data untuk tahun ${tahun}</td></tr>`;
+            if(!res.data || res.data.length === 0) {
+                tbodyInstance.innerHTML = `<tr><td colspan="5" class="text-center text-muted">Tidak ada data untuk filter terpilih</td></tr>`;
                 return;
             }
 
@@ -439,7 +487,7 @@ window.viewDetail = function(type) {
                     }
                 }
 
-                tbody.innerHTML += `
+                tbodyInstance.innerHTML += `
                     <tr>
                         <td class="text-center">${index + 1}</td>
                         <td class="fw-bold">${item.nama || '-'}</td>
@@ -452,7 +500,10 @@ window.viewDetail = function(type) {
         })
         .catch(error => {
             console.error('Error fetching detail:', error);
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Gagal memuat data. Silakan coba lagi.</td></tr>';
+            const tbodyInstance = document.getElementById('detailModalBody');
+            if (tbodyInstance) {
+                tbodyInstance.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Gagal memuat data. Pesan error: ${error.message}</td></tr>`;
+            }
         });
 }
 </script>
@@ -461,8 +512,8 @@ window.viewDetail = function(type) {
 <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header bg-primary text-white border-0">
-                <h5 class="modal-title fw-bold" id="detailModalTitle"><i class="fa fa-list me-2"></i> Rincian Data</h5>
+            <div class="modal-header bg-primary text-white border-0 d-flex flex-wrap align-items-center">
+                <h5 class="modal-title fw-bold flex-grow-1" id="detailModalTitle"><i class="fa fa-list me-2"></i> <span id="modalTitleText">Rincian Data</span></h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-0">

@@ -7,8 +7,11 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class PhiPengaduanTemplateExport implements WithHeadings, WithStyles, ShouldAutoSize
+use Maatwebsite\Excel\Concerns\WithEvents;
+
+class PhiPengaduanTemplateExport implements WithHeadings, WithStyles, ShouldAutoSize, WithEvents
 {
+    use ExportStylingTrait;
     /**
      * @return array
      */
@@ -28,12 +31,5 @@ class PhiPengaduanTemplateExport implements WithHeadings, WithStyles, ShouldAuto
         ];
     }
 
-    public function styles(Worksheet $sheet)
-    {
-        return [
-            1 => [
-                'font' => ['bold' => true]
-            ],
-        ];
-    }
+
 }

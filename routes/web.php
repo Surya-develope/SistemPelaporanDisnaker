@@ -17,31 +17,31 @@ Route::get('/logout', [\App\Http\Controllers\AuthController::class, 'logout'])->
 /* |-------------------------------------------------------------------------- | DASHBOARD (Semua role bisa akses) |-------------------------------------------------------------------------- */
 
 Route::middleware(['web', \App\Http\Middleware\RoleMiddleware::class . ':super_admin,admin,penta,phi,lattas,pejabat'])->group(function () {
-    Route::get('/', function () {
+    Route::get('/', function (\Illuminate\Http\Request $request) {
+            $tahun = $request->query('tahun', (int)date('Y'));
 
             // === BIDANG PENTA ===
-            $totalPencariKerja = \App\Models\PencariKerja::count();
-            $totalLowongan = \App\Models\LowonganKerja::count();
-            $totalPenempatan = \App\Models\Penempatan::count();
+            $totalPencariKerja = \App\Models\PencariKerja::where('tahun', $tahun)->count();
+            $totalLowongan = \App\Models\LowonganKerja::where('tahun', $tahun)->count();
+            $totalPenempatan = \App\Models\Penempatan::where('tahun', $tahun)->count();
 
             // === BIDANG PHI ===
-            $totalLaporanPkwt = \App\Models\PkwtReport::count();
-            $totalPekerjaKwt = \App\Models\PkwtReport::sum('total_pekerja');
-            $totalPerusahaanPP = \App\Models\PhiPeraturanPerusahaan::count();
-            $totalKasusPhi = \App\Models\PhiReport::count();
+            $totalLaporanPkwt = \App\Models\PkwtReport::where('tahun', $tahun)->count();
+            $totalPekerjaKwt = \App\Models\PkwtReport::where('tahun', $tahun)->sum('total_pekerja');
+            $totalPerusahaanPP = \App\Models\PhiPeraturanPerusahaan::where('tahun', $tahun)->count();
+            $totalKasusPhi = \App\Models\PhiReport::where('tahun', $tahun)->count();
             
             // Hitung Tingkat Penyelesaian Kasus
-            $totalKasusSelesai = \App\Models\PhiReport::where('status_kasus', 'selesai')->count();
+            $totalKasusSelesai = \App\Models\PhiReport::where('tahun', $tahun)->where('status_kasus', 'selesai')->count();
             $tingkatPenyelesaianPhi = $totalKasusPhi > 0 ? round(($totalKasusSelesai / $totalKasusPhi) * 100, 1) : 0;
 
             // === BIDANG LATTAS ===
-            $totalLpkAktif = \App\Models\Lpk::where('status', 'aktif')->count();
-            $totalLpkNonaktif = \App\Models\Lpk::where('status', 'tidak aktif')->count();
-            $totalPelatihan = \App\Models\LpkTraining::count();
-            $totalPeserta = \App\Models\LpkTraining::sum('jumlah_peserta');
+            $totalLpkAktif = \App\Models\Lpk::where('status', 'aktif')->whereYear('created_at', '<=', $tahun)->count();
+            $totalLpkNonaktif = \App\Models\Lpk::where('status', 'tidak aktif')->whereYear('created_at', '<=', $tahun)->count();
+            $totalPelatihan = \App\Models\LpkTraining::where('tahun', $tahun)->count();
+            $totalPeserta = \App\Models\LpkTraining::where('tahun', $tahun)->sum('jumlah_peserta');
 
             // === GRAFIK BULANAN (tahun berjalan) ===
-            $tahun = (int)date('Y');
 
             // Penta
             $pencariKerjaBulanan = \App\Models\PencariKerja::selectRaw('MONTH(created_at) as bulan, COUNT(*) as total')
@@ -128,7 +128,8 @@ Route::middleware(['web', \App\Http\Middleware\RoleMiddleware::class . ':super_a
         })->name('dashboard.export');
 
         Route::get('/dashboard/detail/{type}', function ($type, \Illuminate\Http\Request $request) {
-            $tahun = $request->query('tahun', date('Y'));
+            $tahun = $request->query('tahun');
+            $bulan = $request->query('bulan');
             $data = [];
             $title = '';
             $headers = ['No', 'Nama / Entitas Utama', 'Informasi 1', 'Informasi 2', 'Status'];
@@ -136,59 +137,90 @@ Route::middleware(['web', \App\Http\Middleware\RoleMiddleware::class . ':super_a
             switch ($type) {
                 // PENTA
                 case 'pencariKerja':
-                    $data = \App\Models\PencariKerja::where('tahun', $tahun)
-                        ->select('nama_lengkap as nama', 'jenis_kelamin as detail_1', 'pendidikan_terakhir as detail_2', 'status_bekerja as status')
+                    $query = \App\Models\PencariKerja::query();
+                    if ($tahun) $query->where('tahun', $tahun);
+                    if ($bulan) $query->where('bulan', $bulan);
+                    
+                    $data = $query->select('nama', 'jenis_kelamin as detail_1', 'pendidikan_terakhir as detail_2', 'status_verifikasi as status')
                         ->latest()->get();
                     $title = 'Daftar Pencari Kerja Aktif';
-                    $headers = ['No', 'Nama Lengkap', 'Jenis Kelamin', 'Pendidikan', 'Status Bekerja'];
+                    $headers = ['No', 'Nama Lengkap', 'Jenis Kelamin', 'Pendidikan', 'Status Verifikasi'];
                     break;
                 case 'lowongan':
-                    $data = \App\Models\LowonganKerja::where('tahun', $tahun)
-                        ->select('perusahaan as nama', 'judul_lowongan as detail_1', 'kuota as detail_2', 'status_lowongan as status')
+                    $query = \App\Models\LowonganKerja::query();
+                    if ($tahun) $query->where('tahun', $tahun);
+                    if ($bulan) $query->where('bulan', $bulan);
+
+                    $data = $query->select('perusahaan as nama', 'judul_lowongan as detail_1', 'kuota as detail_2', 'status_lowongan as status')
                         ->latest()->get();
                     $title = 'Daftar Lowongan Pekerjaan';
                     $headers = ['No', 'Perusahaan', 'Judul Lowongan', 'Kuota', 'Status Lowongan'];
                     break;
                 case 'penempatan':
-                    $data = \App\Models\Penempatan::where('tahun', $tahun)
-                        ->select('nama_pekerja as nama', 'perusahaan as detail_1', 'jabatan as detail_2', 'status_penempatan as status')
+                    $query = \App\Models\Penempatan::query();
+                    if ($tahun) $query->where('tahun', $tahun);
+                    if ($bulan) $query->where('bulan', $bulan);
+
+                    $data = $query->select('nama as nama', 'nama_perusahaan as detail_1', 'judul_lowongan as detail_2', 'tanggal_diterima as status')
                         ->latest()->get();
+                    
+                    // Format dates
+                    $data->transform(function ($item) {
+                        $item->status = $item->status ? date('d-m-Y', strtotime($item->status)) : '-';
+                        return $item;
+                    });
+                    
                     $title = 'Daftar Penempatan Tenaga Kerja';
-                    $headers = ['No', 'Nama Pekerja', 'Perusahaan', 'Jabatan', 'Status Penempatan'];
+                    $headers = ['No', 'Nama Pekerja', 'Perusahaan', 'Judul Lowongan', 'Tgl Diterima'];
                     break;
 
                 // PHI
                 case 'laporanPkwt':
-                    $data = \App\Models\PkwtReport::where('tahun', $tahun)
-                        ->select('nama_perusahaan as nama', 'no_pencatatan as detail_1', 'total_pekerja as detail_2')
+                    $query = \App\Models\PkwtReport::query();
+                    if ($tahun) $query->where('tahun', $tahun);
+                    if ($bulan) $query->where('bulan', $bulan);
+
+                    $data = $query->select('nama_perusahaan as nama', 'no_pencatatan as detail_1', 'total_pekerja as detail_2')
                         ->latest()->get();
                     $title = 'Daftar Laporan PKWT';
-                    $headers = ['No', 'Nama Perusahaan', 'No. Pencatatan', 'Total Pekerja', 'Status'];
+                    $headers = ['No', 'Nama Perusahaan', 'No. Pencatatan', 'Total Pekerja', 'Aksi'];
                     break;
                 case 'pekerjaKwt':
-                    $data = \App\Models\PkwtReport::where('tahun', $tahun)
-                        ->select('nama_pekerja as nama', 'nama_perusahaan as detail_1', 'jabatan as detail_2')
+                    $query = \App\Models\PkwtReport::query();
+                    if ($tahun) $query->where('tahun', $tahun);
+                    if ($bulan) $query->where('bulan', $bulan);
+
+                    $data = $query->select('nama_pekerja as nama', 'nama_perusahaan as detail_1', 'jabatan as detail_2')
                         ->latest()->get();
                     $title = 'Daftar Pekerja PKWT';
-                    $headers = ['No', 'Nama Pekerja', 'Perusahaan', 'Jabatan', 'Status'];
+                    $headers = ['No', 'Nama Pekerja', 'Perusahaan', 'Jabatan', 'Aksi'];
                     break;
                 case 'kasusPhi':
-                    $data = \App\Models\PhiReport::where('tahun', $tahun)
-                        ->selectRaw('nama_perusahaan as nama, COALESCE(jenis_perselisihan, "-") as detail_1, CONCAT(IFNULL(jml_org, 0), " Pekerja") as detail_2, status_kasus as status')
+                    $query = \App\Models\PhiReport::query();
+                    if ($tahun) $query->where('tahun', $tahun);
+                    if ($bulan) $query->where('bulan', $bulan);
+
+                    $data = $query->selectRaw('nama_perusahaan as nama, COALESCE(jenis_perselisihan, "-") as detail_1, CONCAT(IFNULL(jml_org, 0), " Pekerja") as detail_2, status_kasus as status')
                         ->latest()->get();
                     $title = 'Daftar Kasus PHI Masuk';
                     $headers = ['No', 'Nama Perusahaan', 'Jenis Perselisihan', 'Jml Pekerja', 'Status Kasus'];
                     break;
                 case 'perusahaanPP':
-                    $data = \App\Models\PhiPeraturanPerusahaan::where('tahun', $tahun)
-                        ->select('nama_perusahaan as nama', 'sektor_usaha as detail_1', 'no_sk as detail_2', 'status_pp as status')
+                    $query = \App\Models\PhiPeraturanPerusahaan::query();
+                    if ($tahun) $query->where('tahun', $tahun);
+                    if ($bulan) $query->where('bulan', $bulan);
+
+                    $data = $query->select('nama_perusahaan as nama', 'sektor_usaha as detail_1', 'no_sk as detail_2', 'status_pp as status')
                         ->latest()->get();
                     $title = 'Daftar Perusahaan (Peraturan Perusahaan)';
                     $headers = ['No', 'Nama Perusahaan', 'Sektor Pekerjaan', 'Masa Berlaku (SK)', 'Status Peraturan'];
                     break;
                 case 'kasusDiselesaikan':
-                    $data = \App\Models\PhiReport::where('tahun', $tahun)->where('status_kasus', 'selesai')
-                        ->selectRaw('nama_perusahaan as nama, COALESCE(jenis_perselisihan, "-") as detail_1, CONCAT(IFNULL(jml_org, 0), " Pekerja") as detail_2, COALESCE(metode_penyelesaian, "-") as status')
+                    $query = \App\Models\PhiReport::where('status_kasus', 'selesai');
+                    if ($tahun) $query->where('tahun', $tahun);
+                    if ($bulan) $query->where('bulan', $bulan);
+
+                    $data = $query->selectRaw('nama_perusahaan as nama, COALESCE(jenis_perselisihan, "-") as detail_1, CONCAT(IFNULL(jml_org, 0), " Pekerja") as detail_2, COALESCE(metode_penyelesaian, "-") as status')
                         ->latest()->get();
                     $title = 'Kasus PHI Diselesaikan';
                     $headers = ['No', 'Nama Perusahaan', 'Jenis Perselisihan', 'Jml Pekerja', 'Penyelesaian'];
@@ -196,21 +228,29 @@ Route::middleware(['web', \App\Http\Middleware\RoleMiddleware::class . ':super_a
 
                 // LATTAS
                 case 'lpkAktif':
-                    $data = \App\Models\Lpk::where('status', 'aktif')->whereYear('created_at', '<=', $tahun)
-                        ->select('nama_lpk as nama', 'nama_pimpinan as detail_1', 'alamat as detail_2', 'status')
+                    $query = \App\Models\Lpk::where('status', 'aktif');
+                    if ($tahun) $query->whereYear('created_at', '<=', $tahun);
+                    
+                    $data = $query->select('nama_lpk as nama', 'nama_pimpinan as detail_1', 'alamat as detail_2', 'status')
                         ->latest()->get();
                     $title = 'Daftar LPK Aktif';
                     $headers = ['No', 'Nama LPK', 'Nama Pimpinan', 'Alamat', 'Status'];
                     break;
                 case 'lpkNonaktif':
-                    $data = \App\Models\Lpk::where('status', 'tidak aktif')->whereYear('created_at', '<=', $tahun)
-                        ->select('nama_lpk as nama', 'nama_pimpinan as detail_1', 'alamat as detail_2', 'status')
+                    $query = \App\Models\Lpk::where('status', 'tidak aktif');
+                    if ($tahun) $query->whereYear('created_at', '<=', $tahun);
+
+                    $data = $query->select('nama_lpk as nama', 'nama_pimpinan as detail_1', 'alamat as detail_2', 'status')
                         ->latest()->get();
                     $title = 'Daftar LPK Tidak Aktif';
                     $headers = ['No', 'Nama LPK', 'Nama Pimpinan', 'Alamat', 'Status'];
                     break;
                 case 'pelatihan':
-                    $data = \App\Models\LpkTraining::where('tahun', $tahun)->latest()->get()->map(function($item) {
+                    $query = \App\Models\LpkTraining::query();
+                    if ($tahun) $query->where('tahun', $tahun);
+                    if ($bulan) $query->where('bulan', $bulan);
+
+                    $data = $query->latest()->get()->map(function($item) {
                         return [
                             'nama' => $item->nama_lpk ? $item->nama_lpk : '-',
                             'detail_1' => $item->program_pelatihan,

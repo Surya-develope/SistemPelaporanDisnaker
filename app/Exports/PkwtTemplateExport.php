@@ -7,8 +7,11 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class PkwtTemplateExport implements WithHeadings, WithStyles, ShouldAutoSize
+use Maatwebsite\Excel\Concerns\WithEvents;
+
+class PkwtTemplateExport implements WithHeadings, WithStyles, ShouldAutoSize, WithEvents
 {
+    use ExportStylingTrait;
     public function headings(): array
     {
         return [
@@ -23,12 +26,5 @@ class PkwtTemplateExport implements WithHeadings, WithStyles, ShouldAutoSize
         ];
     }
 
-    public function styles(Worksheet $sheet)
-    {
-        return [
-            1 => [
-                'font' => ['bold' => true]
-            ],
-        ];
-    }
+
 }

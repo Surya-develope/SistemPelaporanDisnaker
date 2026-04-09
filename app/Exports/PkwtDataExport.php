@@ -11,8 +11,11 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class PkwtDataExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
+use Maatwebsite\Excel\Concerns\WithEvents;
+
+class PkwtDataExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles, WithEvents
 {
+    use ExportStylingTrait;
     use Exportable;
 
     protected $bulan;
@@ -75,10 +78,5 @@ class PkwtDataExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
         ];
     }
 
-    public function styles(Worksheet $sheet)
-    {
-        return [
-            1    => ['font' => ['bold' => true]], // Make header row bold
-        ];
-    }
+
 }

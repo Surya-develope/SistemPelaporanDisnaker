@@ -2,13 +2,13 @@
 
 @section('content')
 
-<h3 class="mb-4">Bidang PHI - Rekap PKWT</h3>
+<h4 class="mb-4">Bidang PHI - Rekap PKWT</h4>
 
 @if(session('success'))
 <div class="alert alert-success mt-3">{{ session('success') }}</div>
 @endif
 
-<div class="card shadow p-3">
+<div class="card card-modern p-4 shadow-sm">
     <div class="d-flex justify-content-between mb-3 align-items-center">
         <form method="GET" action="{{ route('phi.pkwt') }}" class="d-flex gap-2">
             <select name="bulan" class="form-select w-auto shadow-sm border-primary-subtle" onchange="this.form.submit()">
@@ -51,7 +51,7 @@
     </form>
 
     <div class="table-responsive">
-        <table class="table table-hover align-middle border-top">
+        <table class="table table-bordered align-middle text-center table-sm">
             <thead class="table-light">
                 <tr class="text-secondary fw-semibold">
                     <th class="ps-3" width="4%"><input type="checkbox" id="checkAll"></th>
