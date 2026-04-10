@@ -44,6 +44,7 @@
     </div>
 </div>
 
+@if(in_array(auth()->user()->role, ['super_admin', 'admin', 'pejabat', 'penta']))
 {{-- ===================== BIDANG PENTA ===================== --}}
 <div class="d-flex align-items-center mb-3">
     <span class="badge rounded-pill me-2" style="background:#0f172a; font-size:13px; padding:7px 14px;">
@@ -97,6 +98,9 @@
     </div>
 </div>
 
+@endif
+
+@if(in_array(auth()->user()->role, ['super_admin', 'admin', 'pejabat', 'phi']))
 {{-- ===================== BIDANG PHI ===================== --}}
 <div class="d-flex align-items-center mb-3">
     <span class="badge rounded-pill me-2" style="background:#b45309; font-size:13px; padding:7px 14px;">
@@ -164,6 +168,9 @@
     </div>
 </div>
 
+@endif
+
+@if(in_array(auth()->user()->role, ['super_admin', 'admin', 'pejabat', 'lattas']))
 {{-- ===================== BIDANG LATTAS ===================== --}}
 <div class="d-flex align-items-center mb-3">
     <span class="badge rounded-pill me-2" style="background:#065f46; font-size:13px; padding:7px 14px;">
@@ -216,6 +223,7 @@
         </div>
     </div>
 </div>
+@endif
 
 {{-- ===================== GRAFIK STATISTIK BULANAN ===================== --}}
 <div id="chartContainerArea" class="card card-modern shadow-sm p-4 mb-5" style="page-break-before: always;">
@@ -373,29 +381,37 @@ window.resetChart = function() {
     gradLattas.addColorStop(0, 'rgba(124, 58, 237, 0.5)'); // Purple
     gradLattas.addColorStop(1, 'rgba(124, 58, 237, 0.0)');
 
-    const datasets = [
-        {
-            label: 'Pencari Kerja (PENTA)',
-            data: rawData['pencariKerja'],
-            borderColor: '#3b82f6',
-            backgroundColor: gradPenta,
-            borderWidth: 3, pointRadius: 0, pointHoverRadius: 6, pointHoverBackgroundColor: '#ffffff', pointHoverBorderWidth: 3, pointHoverBorderColor: '#3b82f6', tension: 0.4, fill: true
-        },
-        {
-            label: 'Laporan PKWT (PHI)',
-            data: rawData['laporanPkwt'],
-            borderColor: '#f97316',
-            backgroundColor: gradPhi,
-            borderWidth: 3, pointRadius: 0, pointHoverRadius: 6, pointHoverBackgroundColor: '#ffffff', pointHoverBorderWidth: 3, pointHoverBorderColor: '#f97316', tension: 0.4, fill: true
-        },
-        {
-            label: 'Program Pelatihan (LATTAS)',
-            data: rawData['pelatihan'],
-            borderColor: '#7c3aed',
-            backgroundColor: gradLattas,
-            borderWidth: 3, pointRadius: 0, pointHoverRadius: 6, pointHoverBackgroundColor: '#ffffff', pointHoverBorderWidth: 3, pointHoverBorderColor: '#7c3aed', tension: 0.4, fill: true
-        }
-    ];
+    const datasets = [];
+
+    @if(in_array(auth()->user()->role, ['super_admin', 'admin', 'pejabat', 'penta']))
+    datasets.push({
+        label: 'Pencari Kerja (PENTA)',
+        data: rawData['pencariKerja'],
+        borderColor: '#3b82f6',
+        backgroundColor: gradPenta,
+        borderWidth: 3, pointRadius: 0, pointHoverRadius: 6, pointHoverBackgroundColor: '#ffffff', pointHoverBorderWidth: 3, pointHoverBorderColor: '#3b82f6', tension: 0.4, fill: true
+    });
+    @endif
+
+    @if(in_array(auth()->user()->role, ['super_admin', 'admin', 'pejabat', 'phi']))
+    datasets.push({
+        label: 'Laporan PKWT (PHI)',
+        data: rawData['laporanPkwt'],
+        borderColor: '#f97316',
+        backgroundColor: gradPhi,
+        borderWidth: 3, pointRadius: 0, pointHoverRadius: 6, pointHoverBackgroundColor: '#ffffff', pointHoverBorderWidth: 3, pointHoverBorderColor: '#f97316', tension: 0.4, fill: true
+    });
+    @endif
+
+    @if(in_array(auth()->user()->role, ['super_admin', 'admin', 'pejabat', 'lattas']))
+    datasets.push({
+        label: 'Program Pelatihan (LATTAS)',
+        data: rawData['pelatihan'],
+        borderColor: '#7c3aed',
+        backgroundColor: gradLattas,
+        borderWidth: 3, pointRadius: 0, pointHoverRadius: 6, pointHoverBackgroundColor: '#ffffff', pointHoverBorderWidth: 3, pointHoverBorderColor: '#7c3aed', tension: 0.4, fill: true
+    });
+    @endif
     
     renderChart(datasets);
 };

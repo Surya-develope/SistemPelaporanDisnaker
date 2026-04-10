@@ -225,26 +225,6 @@
             margin-bottom: 18px;
         }
 
-        /* Demo credentials */
-        .demo-box {
-            margin-top: 22px;
-            padding: 12px 16px;
-            background: #f1f5f9;
-            border-radius: 10px;
-            border-left: 3px solid #3b82f6;
-        }
-        .demo-box p {
-            font-size: 11.5px;
-            color: #64748b;
-            line-height: 1.7;
-            margin: 0;
-        }
-        .demo-box strong {
-            color: #334155;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: .5px;
-        }
 
         /* ── RESPONSIVE ───────────────────────────── */
         @media (max-width: 767.98px) {
@@ -324,12 +304,6 @@
             </button>
         </form>
 
-        <div class="demo-box">
-            <p><strong>Demo Login</strong><br>
-                admin / 123 &nbsp;·&nbsp; penta / 123<br>
-                phi / 123 &nbsp;·&nbsp; lattas / 123
-            </p>
-        </div>
 
     </div>
 
