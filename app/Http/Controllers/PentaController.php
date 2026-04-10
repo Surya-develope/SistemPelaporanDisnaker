@@ -32,34 +32,50 @@ class PentaController extends Controller
         $query = LowonganKerja::latest('tanggal_posting');
         if ($request->filled('bulan')) $query->where('bulan', $request->bulan);
         if ($request->filled('tahun')) $query->where('tahun', $request->tahun);
-        $data = $query->get();
-
-        $exportData = [];
-        $no = 1;
-        foreach ($data as $row) {
-            $exportData[] = [
-                $no++, 
-                $row->judul_lowongan,
-                $row->deskripsi_pekerjaan,
-                $row->perusahaan,
-                $row->kategori_pekerjaan,
-                $row->tipe_pekerjaan,
-                $row->sektor_pekerjaan,
-                $row->fungsi_pekerjaan,
-                $row->kode_kbji,
-                $row->minimal_pendidikan,
-                $row->keahlian_diperlukan,
-                $row->kebutuhan_disabilitas,
-                $row->kuota,
-                $row->kuota_sisa,
-                $row->status_lowongan,
-                $row->tanggal_posting ? \Carbon\Carbon::parse($row->tanggal_posting)->format('Y-m-d') : null,
-                $row->tanggal_kadaluwarsa ? \Carbon\Carbon::parse($row->tanggal_kadaluwarsa)->format('Y-m-d H:i:s') : null,
-            ];
-        }
+        $allData = $query->get();
 
         $headings = ['NO', 'JUDUL LOWONGAN', 'DESKRIPSI PEKERJAAN', 'PERUSAHAAN', 'KATEGORI PEKERJAAN', 'TIPE PEKERJAAN', 'SEKTOR PEKERJAAN', 'FUNGSI PEKERJAAN', 'KODE KBJI', 'MINIMAL PENDIDIKAN', 'KEAHLIAN DIPERLUKAN', 'KEBUTUHAN DISABILITAS', 'KUOTA', 'KUOTA SISA', 'STATUS LOWONGAN', 'TANGGAL POSTING', 'TANGGAL KADALUWARSA'];
-        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericDataExport($exportData, $headings), 'lowongan_kerja.xlsx');
+
+        $groupedData = $allData->groupBy(function($item) {
+            $namaBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            $blnStr = ($item->bulan && $item->bulan >= 1 && $item->bulan <= 12) ? $namaBulan[$item->bulan - 1] : 'Unknown';
+            $thnStr = $item->tahun ?? 'Unknown';
+            return $blnStr . ' ' . $thnStr;
+        });
+
+        $sheets = [];
+        foreach ($groupedData as $sheetName => $dataChunk) {
+            $exportData = [];
+            $no = 1;
+            foreach ($dataChunk as $row) {
+                $exportData[] = [
+                    $no++, 
+                    $row->judul_lowongan,
+                    $row->deskripsi_pekerjaan,
+                    $row->perusahaan,
+                    $row->kategori_pekerjaan,
+                    $row->tipe_pekerjaan,
+                    $row->sektor_pekerjaan,
+                    $row->fungsi_pekerjaan,
+                    $row->kode_kbji,
+                    $row->minimal_pendidikan,
+                    $row->keahlian_diperlukan,
+                    $row->kebutuhan_disabilitas,
+                    $row->kuota,
+                    $row->kuota_sisa,
+                    $row->status_lowongan,
+                    $row->tanggal_posting ? \Carbon\Carbon::parse($row->tanggal_posting)->format('Y-m-d') : null,
+                    $row->tanggal_kadaluwarsa ? \Carbon\Carbon::parse($row->tanggal_kadaluwarsa)->format('Y-m-d H:i:s') : null,
+                ];
+            }
+            $sheets[] = new \App\Exports\GenericDataExport($exportData, $headings, substr($sheetName, 0, 31));
+        }
+
+        if (count($sheets) === 0) {
+            $sheets[] = new \App\Exports\GenericDataExport([], $headings, 'Data Kosong');
+        }
+
+        return Excel::download(new \App\Exports\GenericMultiSheetExport($sheets), 'lowongan_kerja_' . date('YmdHis') . '.xlsx');
     }
 
     public function tenagaKerja(Request $request)
@@ -78,31 +94,47 @@ class PentaController extends Controller
         $query = PencariKerja::latest('tanggal_daftar');
         if ($request->filled('bulan')) $query->where('bulan', $request->bulan);
         if ($request->filled('tahun')) $query->where('tahun', $request->tahun);
-        $data = $query->get();
-
-        $exportData = [];
-        $no = 1;
-        foreach ($data as $row) {
-            $exportData[] = [
-                $no++, 
-                $row->nik, 
-                $row->nama, 
-                $row->email, 
-                $row->no_hp, 
-                $row->tempat_tanggal_lahir, 
-                $row->alamat_domisili, 
-                $row->domisili, 
-                $row->jenis_kelamin, 
-                $row->kondisi_fisik, 
-                $row->pendidikan_terakhir, 
-                $row->jurusan, 
-                $row->tanggal_daftar ? \Carbon\Carbon::parse($row->tanggal_daftar)->format('Y-m-d') : null, 
-                $row->status_verifikasi
-            ];
-        }
+        $allData = $query->get();
 
         $headings = ['NO', 'NIK', 'NAMA', 'EMAIL', 'NO HP', 'TEMPAT TANGGAL LAHIR', 'ALAMAT DOMISILI', 'DOMISILI', 'JENIS KELAMIN', 'KONDISI FISIK', 'PENDIDIKAN TERAKHIR', 'JURUSAN', 'TANGGAL DAFTAR', 'STATUS VERIFIKASI'];
-        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericDataExport($exportData, $headings), 'pencari_kerja.xlsx');
+
+        $groupedData = $allData->groupBy(function($item) {
+            $namaBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            $blnStr = ($item->bulan && $item->bulan >= 1 && $item->bulan <= 12) ? $namaBulan[$item->bulan - 1] : 'Unknown';
+            $thnStr = $item->tahun ?? 'Unknown';
+            return $blnStr . ' ' . $thnStr;
+        });
+
+        $sheets = [];
+        foreach ($groupedData as $sheetName => $dataChunk) {
+            $exportData = [];
+            $no = 1;
+            foreach ($dataChunk as $row) {
+                $exportData[] = [
+                    $no++, 
+                    $row->nik, 
+                    $row->nama, 
+                    $row->email, 
+                    $row->no_hp, 
+                    $row->tempat_tanggal_lahir, 
+                    $row->alamat_domisili, 
+                    $row->domisili, 
+                    $row->jenis_kelamin, 
+                    $row->kondisi_fisik, 
+                    $row->pendidikan_terakhir, 
+                    $row->jurusan, 
+                    $row->tanggal_daftar ? \Carbon\Carbon::parse($row->tanggal_daftar)->format('Y-m-d') : null, 
+                    $row->status_verifikasi
+                ];
+            }
+            $sheets[] = new \App\Exports\GenericDataExport($exportData, $headings, substr($sheetName, 0, 31));
+        }
+
+        if (count($sheets) === 0) {
+            $sheets[] = new \App\Exports\GenericDataExport([], $headings, 'Data Kosong');
+        }
+
+        return Excel::download(new \App\Exports\GenericMultiSheetExport($sheets), 'pencari_kerja_' . date('YmdHis') . '.xlsx');
     }
 
     public function rekap(Request $request)
@@ -121,29 +153,45 @@ class PentaController extends Controller
         $query = Penempatan::latest('tanggal_diterima');
         if ($request->filled('bulan')) $query->where('bulan', $request->bulan);
         if ($request->filled('tahun')) $query->where('tahun', $request->tahun);
-        $data = $query->get();
-
-        $exportData = [];
-        $no = 1;
-        foreach ($data as $row) {
-            $exportData[] = [
-                $no++, 
-                $row->nama, 
-                $row->email, 
-                $row->judul_lowongan, 
-                $row->kode_kbji, 
-                $row->nama_perusahaan, 
-                $row->pendidikan_terakhir_pelamar, 
-                $row->pendidikan_minimal_loker, 
-                $row->domisili_pelamar, 
-                $row->domisili_lowongan, 
-                $row->tanggal_melamar ? \Carbon\Carbon::parse($row->tanggal_melamar)->format('Y-m-d') : null, 
-                $row->tanggal_diterima ? \Carbon\Carbon::parse($row->tanggal_diterima)->format('Y-m-d') : null
-            ];
-        }
+        $allData = $query->get();
 
         $headings = ['NO', 'NAMA', 'EMAIL', 'JUDUL LOWONGAN', 'KODE KBJI', 'NAMA PERUSAHAAN', 'PENDIDIKAN TERAKHIR PELAMAR', 'PENDIDIKAN MINIMAL LOKER', 'DOMISILI PELAMAR', 'DOMISILI LOWONGAN', 'TANGGAL MELAMAR', 'TANGGAL DITERIMA'];
-        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericDataExport($exportData, $headings), 'penempatan_kerja.xlsx');
+
+        $groupedData = $allData->groupBy(function($item) {
+            $namaBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            $blnStr = ($item->bulan && $item->bulan >= 1 && $item->bulan <= 12) ? $namaBulan[$item->bulan - 1] : 'Unknown';
+            $thnStr = $item->tahun ?? 'Unknown';
+            return $blnStr . ' ' . $thnStr;
+        });
+
+        $sheets = [];
+        foreach ($groupedData as $sheetName => $dataChunk) {
+            $exportData = [];
+            $no = 1;
+            foreach ($dataChunk as $row) {
+                $exportData[] = [
+                    $no++, 
+                    $row->nama, 
+                    $row->email, 
+                    $row->judul_lowongan, 
+                    $row->kode_kbji, 
+                    $row->nama_perusahaan, 
+                    $row->pendidikan_terakhir_pelamar, 
+                    $row->pendidikan_minimal_loker, 
+                    $row->domisili_pelamar, 
+                    $row->domisili_lowongan, 
+                    $row->tanggal_melamar ? \Carbon\Carbon::parse($row->tanggal_melamar)->format('Y-m-d') : null, 
+                    $row->tanggal_diterima ? \Carbon\Carbon::parse($row->tanggal_diterima)->format('Y-m-d') : null
+                ];
+            }
+            $sheets[] = new \App\Exports\GenericDataExport($exportData, $headings, substr($sheetName, 0, 31));
+        }
+
+        if (count($sheets) === 0) {
+            $sheets[] = new \App\Exports\GenericDataExport([], $headings, 'Data Kosong');
+        }
+
+        return Excel::download(new \App\Exports\GenericMultiSheetExport($sheets), 'penempatan_kerja_' . date('YmdHis') . '.xlsx');
     }
 
 

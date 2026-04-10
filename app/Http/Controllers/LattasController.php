@@ -27,7 +27,7 @@ class LattasController extends Controller
         }
 
         $trainings = $query->get();
-        return \Illuminate\Support\Facades\View::make('lattas.pelatihan', compact('trainings'));
+        return View::make('lattas.pelatihan', compact('trainings'));
     }
 
     public function exportPelatihan(Request $request)
@@ -35,19 +35,35 @@ class LattasController extends Controller
         $query = LpkTraining::query();
         if ($request->filled('bulan')) $query->where('bulan', $request->bulan);
         if ($request->filled('tahun')) $query->where('tahun', $request->tahun);
-        $data = $query->get();
-
-        $exportData = [];
-        $no = 1;
-        foreach ($data as $row) {
-            $namaLpk = $row->nama_lpk ? $row->nama_lpk : '-';
-            $exportData[] = [
-                $no++, $namaLpk, $row->program_pelatihan, $row->jumlah_peserta, $row->jumlah_paket
-            ];
-        }
+        $allData = $query->get();
 
         $headings = ['No', 'Nama LPK', 'Program Pelatihan', 'Jumlah Peserta', 'Jumlah Paket'];
-        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericDataExport($exportData, $headings), 'program_pelatihan.xlsx');
+
+        $groupedData = $allData->groupBy(function($item) {
+            $namaBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            $blnStr = ($item->bulan && $item->bulan >= 1 && $item->bulan <= 12) ? $namaBulan[$item->bulan - 1] : 'Unknown';
+            $thnStr = $item->tahun ?? 'Unknown';
+            return $blnStr . ' ' . $thnStr;
+        });
+
+        $sheets = [];
+        foreach ($groupedData as $sheetName => $dataChunk) {
+            $exportData = [];
+            $no = 1;
+            foreach ($dataChunk as $row) {
+                $namaLpk = $row->nama_lpk ? $row->nama_lpk : '-';
+                $exportData[] = [
+                    $no++, $namaLpk, $row->program_pelatihan, $row->jumlah_peserta, $row->jumlah_paket
+                ];
+            }
+            $sheets[] = new \App\Exports\GenericDataExport($exportData, $headings, substr($sheetName, 0, 31));
+        }
+
+        if (count($sheets) === 0) {
+            $sheets[] = new \App\Exports\GenericDataExport([], $headings, 'Data Kosong');
+        }
+
+        return Excel::download(new \App\Exports\GenericMultiSheetExport($sheets), 'program_pelatihan_' . date('YmdHis') . '.xlsx');
     }
 
     // Rekap LPK Aktif
@@ -63,7 +79,7 @@ class LattasController extends Controller
         }
 
         $lpks = $query->get();
-        return \Illuminate\Support\Facades\View::make('lattas.lpk_aktif', compact('lpks'));
+        return View::make('lattas.lpk_aktif', compact('lpks'));
     }
 
     public function exportLpkAktif(Request $request)
@@ -71,18 +87,34 @@ class LattasController extends Controller
         $query = Lpk::where('status', 'aktif');
         if ($request->filled('bulan')) $query->where('bulan', $request->bulan);
         if ($request->filled('tahun')) $query->where('tahun', $request->tahun);
-        $data = $query->get();
-
-        $exportData = [];
-        $no = 1;
-        foreach ($data as $row) {
-            $exportData[] = [
-                $no++, $row->nama_lpk, $row->nama_pimpinan, $row->tahun_berdiri, $row->alamat, $row->status
-            ];
-        }
+        $allData = $query->get();
 
         $headings = ['No', 'Nama LPK', 'Pimpinan', 'Tahun Berdiri', 'Alamat', 'Status'];
-        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericDataExport($exportData, $headings), 'lpk_aktif.xlsx');
+
+        $groupedData = $allData->groupBy(function($item) {
+            $namaBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            $blnStr = ($item->bulan && $item->bulan >= 1 && $item->bulan <= 12) ? $namaBulan[$item->bulan - 1] : 'Unknown';
+            $thnStr = $item->tahun ?? 'Unknown';
+            return $blnStr . ' ' . $thnStr;
+        });
+
+        $sheets = [];
+        foreach ($groupedData as $sheetName => $dataChunk) {
+            $exportData = [];
+            $no = 1;
+            foreach ($dataChunk as $row) {
+                $exportData[] = [
+                    $no++, $row->nama_lpk, $row->nama_pimpinan, $row->tahun_berdiri, $row->alamat, $row->status
+                ];
+            }
+            $sheets[] = new \App\Exports\GenericDataExport($exportData, $headings, substr($sheetName, 0, 31));
+        }
+
+        if (count($sheets) === 0) {
+            $sheets[] = new \App\Exports\GenericDataExport([], $headings, 'Data Kosong');
+        }
+
+        return Excel::download(new \App\Exports\GenericMultiSheetExport($sheets), 'lpk_aktif_' . date('YmdHis') . '.xlsx');
     }
 
     // Rekap LPK Non Aktif
@@ -98,7 +130,7 @@ class LattasController extends Controller
         }
 
         $lpks = $query->get();
-        return \Illuminate\Support\Facades\View::make('lattas.lpk_nonaktif', compact('lpks'));
+        return View::make('lattas.lpk_nonaktif', compact('lpks'));
     }
 
     public function exportLpkNonaktif(Request $request)
@@ -106,18 +138,34 @@ class LattasController extends Controller
         $query = Lpk::where('status', 'tidak aktif');
         if ($request->filled('bulan')) $query->where('bulan', $request->bulan);
         if ($request->filled('tahun')) $query->where('tahun', $request->tahun);
-        $data = $query->get();
-
-        $exportData = [];
-        $no = 1;
-        foreach ($data as $row) {
-            $exportData[] = [
-                $no++, $row->nama_lpk, $row->nama_pimpinan, $row->tahun_berdiri, $row->alamat, $row->status
-            ];
-        }
+        $allData = $query->get();
 
         $headings = ['No', 'Nama LPK', 'Pimpinan', 'Tahun Berdiri', 'Alamat', 'Status'];
-        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericDataExport($exportData, $headings), 'lpk_tidak_aktif.xlsx');
+
+        $groupedData = $allData->groupBy(function($item) {
+            $namaBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            $blnStr = ($item->bulan && $item->bulan >= 1 && $item->bulan <= 12) ? $namaBulan[$item->bulan - 1] : 'Unknown';
+            $thnStr = $item->tahun ?? 'Unknown';
+            return $blnStr . ' ' . $thnStr;
+        });
+
+        $sheets = [];
+        foreach ($groupedData as $sheetName => $dataChunk) {
+            $exportData = [];
+            $no = 1;
+            foreach ($dataChunk as $row) {
+                $exportData[] = [
+                    $no++, $row->nama_lpk, $row->nama_pimpinan, $row->tahun_berdiri, $row->alamat, $row->status
+                ];
+            }
+            $sheets[] = new \App\Exports\GenericDataExport($exportData, $headings, substr($sheetName, 0, 31));
+        }
+
+        if (count($sheets) === 0) {
+            $sheets[] = new \App\Exports\GenericDataExport([], $headings, 'Data Kosong');
+        }
+
+        return Excel::download(new \App\Exports\GenericMultiSheetExport($sheets), 'lpk_tidak_aktif_' . date('YmdHis') . '.xlsx');
     }
 
 

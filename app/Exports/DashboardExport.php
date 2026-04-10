@@ -50,18 +50,58 @@ class DashboardExport implements WithMultipleSheets
         $dataPkwt = [];
         $no = 1;
         foreach ($pkwts as $row) {
-            $dataPkwt[] = [$no++, $row->bulan, $row->tahun, $row->nama_perusahaan, $row->no_pencatatan, $row->tanggal_pencatatan, $row->total_pekerja, $row->nama_pekerja, $row->jabatan];
+            $dataPkwt[] = [
+                $no++, 
+                $row->bulan, 
+                $row->tahun, 
+                $row->no_pencatatan ?? '-', 
+                $row->nama_perusahaan ?? '-',
+                $row->alamat_perusahaan ?? '-', 
+                $row->nama_pekerja ?? '-', 
+                $row->total_pekerja ?? 0, 
+                $row->jabatan ?? '-', 
+                $row->masa_kontrak ?? '-',
+                $row->keterangan ?? '-'
+            ];
         }
-        $sheets[] = new GenericDataExport($dataPkwt, ['No', 'Bulan', 'Tahun', 'Nama Perusahaan', 'No Pencatatan', 'Tanggal', 'Total Pekerja', 'Nama Pekerja', 'Jabatan'], 'Laporan PKWT');
+        $sheets[] = new GenericDataExport($dataPkwt, ['NO', 'BULAN', 'TAHUN', 'NOMOR PENCATATAN', 'NAMA PERUSAHAAN', 'ALAMAT PERUSAHAAN', 'NAMA PEKERJA', 'JUMLAH PEKERJA', 'JABATAN', 'MASA KONTRAK', 'KETERANGAN'], 'Laporan PKWT');
 
-        // 5. Kasus PHI
+        // 4.5 Peraturan Perusahaan
+        $peraturans = \App\Models\PhiPeraturanPerusahaan::where('tahun', $t)->latest('created_at')->get();
+        $dataPp = [];
+        $no = 1;
+        foreach ($peraturans as $row) {
+            $masa_berlaku = ($row->masa_berlaku_awal && $row->masa_berlaku_akhir) 
+                            ? \Carbon\Carbon::parse($row->masa_berlaku_awal)->format('d/m/Y') . ' - ' . \Carbon\Carbon::parse($row->masa_berlaku_akhir)->format('d/m/Y') 
+                            : '-';
+            $dataPp[] = [$no++, $row->bulan, $row->tahun, $row->nama_perusahaan, $row->sektor_usaha, $row->total_pekerja, $row->status_pp, $row->no_sk, $row->pp_ke, $masa_berlaku];
+        }
+        $sheets[] = new GenericDataExport($dataPp, ['No', 'Bulan', 'Tahun', 'Nama Perusahaan', 'Sektor Usaha', 'Total Pekerja', 'Status PP', 'No SK PP', 'PP Ke', 'Masa Berlaku'], 'Peraturan Perusahaan');
+
+        // 6. Kasus PHI
         $phis = \App\Models\PhiReport::where('tahun', $t)->latest('created_at')->get();
         $dataPhi = [];
         $no = 1;
         foreach ($phis as $row) {
-            $dataPhi[] = [$no++, $row->bulan, $row->tahun, $row->sisa_bulan_lalu, $row->kasus_masuk, $row->kasus_selesai, $row->sisa_kasus_akhir];
+            $dataPhi[] = [
+                $no++, 
+                $row->nomor_agenda ?? '-',
+                $row->tanggal_diterima ? \Carbon\Carbon::parse($row->tanggal_diterima)->format('Y-m-d') : '-',
+                $row->nama_perusahaan, 
+                $row->sektor ?? '-',
+                $row->nama_pekerja ?? '-',
+                $row->jml_org ?? 0, 
+                $row->jenis_perselisihan ?? '-', 
+                $row->mediator ?? '-',
+                $row->metode_penyelesaian ?? '-',
+                $row->tanggal_diselesaikan ? \Carbon\Carbon::parse($row->tanggal_diselesaikan)->format('Y-m-d') : '-'
+            ];
         }
-        $sheets[] = new GenericDataExport($dataPhi, ['No', 'Bulan', 'Tahun', 'Sisa Bulan Lalu', 'Kasus Masuk', 'Kasus Selesai', 'Sisa Kasus Akhir'], 'Kasus PHI');
+        $headingsPhi = [
+            'NO', 'NOMOR AGENDA', 'TANGGAL KASUS DITERIMA', 'NAMA PERUSAHAAN', 'SEKTOR', 
+            'NAMA PEKERJA', 'JML ORG', 'JENIS PERSELISIHAN', 'MEDIATOR', 'PENYELESAIAN KASUS', 'TANGGAL KASUS DISELESAIKAN'
+        ];
+        $sheets[] = new GenericDataExport($dataPhi, $headingsPhi, 'Kasus PHI');
 
         // 6. LPK Aktif
         $lpkAktif = \App\Models\Lpk::where('status', 'aktif')->whereYear('created_at', '<=', $t)->oldest('nama_lpk')->get();

@@ -86,15 +86,67 @@ class PhiPkwtController extends Controller
 
     public function export(Request $request)
     {
-        $bulan = $request->bulan;
-        $tahun = $request->tahun;
+        $query = PkwtReport::query();
 
-        $filename = 'rekap_pkwt_';
-        $filename .= $bulan ? $bulan . '_' : '';
-        $filename .= $tahun ? $tahun : date('Y');
-        $filename .= '.xlsx';
+        if ($request->filled('bulan')) {
+            $query->where('bulan', $request->bulan);
+        }
+        if ($request->filled('tahun')) {
+            $query->where('tahun', $request->tahun);
+        }
 
-        return Excel::download(new PkwtDataExport($bulan, $tahun), $filename);
+        $allData = $query->latest()->get();
+
+        $headings = [
+            'NO',
+            'BULAN',
+            'TAHUN',
+            'NOMOR PENCATATAN',
+            'NAMA PERUSAHAAN',
+            'ALAMAT PERUSAHAAN',
+            'NAMA PEKERJA',
+            'JUMLAH PEKERJA',
+            'JABATAN',
+            'MASA KONTRAK',
+            'KETERANGAN'
+        ];
+
+        // Group data by Bulan and Tahun
+        $groupedData = $allData->groupBy(function($item) {
+            $namaBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            $blnStr = ($item->bulan && $item->bulan >= 1 && $item->bulan <= 12) ? $namaBulan[$item->bulan - 1] : 'Unknown';
+            $thnStr = $item->tahun ?? 'Unknown';
+            return $blnStr . ' ' . $thnStr;
+        });
+
+        $sheets = [];
+        foreach ($groupedData as $sheetName => $dataChunk) {
+            $exportData = [];
+            $no = 1;
+            foreach ($dataChunk as $row) {
+                $exportData[] = [
+                    $no++,
+                    $row->bulan,
+                    $row->tahun,
+                    $row->no_pencatatan ?? '-',
+                    $row->nama_perusahaan ?? '-',
+                    $row->alamat_pimpinan ?? '-',
+                    $row->nama_pekerja ?? '-',
+                    $row->total_pekerja ?? 0,
+                    $row->jabatan ?? '-',
+                    $row->masa_kontrak ?? '-',
+                    $row->keterangan ?? '-'
+                ];
+            }
+            $sheets[] = new \App\Exports\GenericDataExport($exportData, $headings, substr($sheetName, 0, 31));
+        }
+
+        if (count($sheets) === 0) {
+            $sheets[] = new \App\Exports\GenericDataExport([], $headings, 'Data Kosong');
+        }
+
+        $filename = 'laporan_pkwt_' . date('YmdHis') . '.xlsx';
+        return Excel::download(new \App\Exports\GenericMultiSheetExport($sheets), $filename);
     }
 
     public function update(Request $request, $id)

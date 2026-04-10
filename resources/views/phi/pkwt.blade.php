@@ -50,8 +50,8 @@
         </div>
     </form>
 
-    <div class="table-responsive">
-        <table class="table table-bordered align-middle text-center table-sm">
+    <div class="table-responsive border rounded shadow-sm mb-4">
+        <table class="table table-hover table-striped text-nowrap table-bordered align-middle text-center table-sm m-0">
             <thead class="table-light">
                 <tr class="text-secondary fw-semibold">
                     <th class="ps-3" width="4%"><input type="checkbox" id="checkAll"></th>

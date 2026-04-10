@@ -55,61 +55,70 @@
         </div>
     </form>
 
-    <div class="table-responsive">
-        <table class="table table-bordered align-middle text-center table-sm">
-            <thead class="table-light align-middle">
-                <tr>
-                    <th width="3%"><input type="checkbox" id="checkAll"></th>
-                    <th width="3%">No</th>
-                    <th>Nama Perusahaan / Sektor</th>
-                    <th>Pekerja</th>
-                    <th>Mediator</th>
-                    <th>Tanggal Diterima</th>
-                    <th>Status Kasus</th>
-                    <th>Penyelesaian Kasus</th>
-                    <th>Lampiran</th>
-                    <th>Aksi</th>
+    <div class="table-responsive border rounded shadow-sm mb-4">
+        <table class="table table-hover table-striped text-nowrap table-bordered align-middle text-center table-sm m-0">
+            <thead class="table-light">
+                <tr class="text-secondary fw-semibold">
+                    <th class="ps-3" width="4%"><input type="checkbox" id="checkAll"></th>
+                    <th width="50">No</th>
+                    <th width="250" class="text-start">Detail Perusahaan</th>
+                    <th class="text-center" width="100">Pekerja</th>
+                    <th width="150">Mediator</th>
+                    <th width="120">Tgl Diterima</th>
+                    <th width="200">Status & Penyelesaian</th>
+                    <th width="80">Lampiran</th>
+                    <th class="text-center ps-3" width="100">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($pengaduans as $index => $p)
                 <tr>
-                    <td class="align-middle"><input type="checkbox" class="checkItem" value="{{ $p->id }}"></td>
-                    <td>{{ $index + 1 }}</td>
+                    <td class="ps-3"><input type="checkbox" class="checkItem" value="{{ $p->id }}"></td>
+                    <td class="text-muted">{{ $index + 1 }}</td>
                     <td class="text-start">
-                        <strong>{{ $p->nama_perusahaan }}</strong><br>
-                        <small class="text-muted">{{ $p->sektor }}</small>
-                    </td>
-                    <td>
-                        {{ $p->nama_pekerja ?? '-' }}
-                        @if($p->jml_org)
-                        <br><span class="badge bg-secondary">{{ $p->jml_org }} Orang</span>
+                        <div class="fw-bold text-primary mb-0" style="font-size: 1.05rem;">{{ $p->nama_perusahaan }}</div>
+                        <div class="small text-muted"><i class="fa fa-briefcase me-1"></i> {{ $p->sektor ?? 'Sektor Belum Diisi' }}</div>
+                        @if($p->nama_pekerja)
+                        <div class="small text-dark mt-1"><i class="fa fa-user-friends me-1"></i> Pekerja: {{ $p->nama_pekerja }}</div>
                         @endif
                     </td>
-                    <td>{{ $p->mediator ?? '-' }}</td>
-                    <td>{{ $p->tanggal_diterima ? \Carbon\Carbon::parse($p->tanggal_diterima)->format('d/m/Y') : '-' }}</td>
+                    <td class="text-center">
+                        <div class="fw-bold fs-5">{{ $p->jml_org ?? 0 }}</div>
+                        <div class="small text-muted" style="font-size: 0.75rem;">Orang</div>
+                    </td>
                     <td>
+                        <div class="text-dark small fw-medium text-truncate" style="max-width: 150px;">{{ $p->mediator ?? '-' }}</div>
+                        <div class="small text-muted mt-1"><span class="badge bg-light text-dark border">{{ $p->jenis_perselisihan ?? 'Biasa' }}</span></div>
+                    </td>
+                    <td>
+                        <span class="badge bg-light text-dark border fw-normal"><i class="fa fa-calendar-alt me-1"></i> {{ $p->tanggal_diterima ? \Carbon\Carbon::parse($p->tanggal_diterima)->format('d/m/Y') : '-' }}</span>
+                    </td>
+                    <td>
+                        <div>
                         @if($p->status_kasus === 'selesai')
-                            <span class="badge bg-success">Selesai</span><br>
-                            <small>{{ $p->tanggal_diselesaikan ? \Carbon\Carbon::parse($p->tanggal_diselesaikan)->format('d/m/Y') : '-' }}</small>
+                            <span class="badge bg-success mb-1 px-3">Selesai</span>
                         @else
-                            <span class="badge bg-warning text-dark">Berjalan</span>
+                            <span class="badge bg-warning text-dark mb-1 px-3">Berjalan</span>
+                        @endif
+                        </div>
+                        <div class="small text-muted font-monospace mt-1">{{ $p->metode_penyelesaian ?? '-' }}</div>
+                        @if($p->tanggal_diselesaikan)
+                            <div class="small text-muted mt-1"><i class="fa fa-check-circle text-success me-1"></i> {{ \Carbon\Carbon::parse($p->tanggal_diselesaikan)->format('d/m/Y') }}</div>
                         @endif
                     </td>
-                    <td>{{ $p->metode_penyelesaian ?? '-' }}</td>
                     <td class="text-center">
                         @if($p->file_path)
-                        <a href="{{ asset('storage/' . $p->file_path) }}" target="_blank" class="btn btn-sm btn-outline-success" title="Lihat Lampiran">
-                            <i class="fa fa-file-alt"></i>
+                        <a href="{{ asset('storage/' . $p->file_path) }}" target="_blank" class="btn btn-sm btn-outline-success rounded-pill" title="Lihat Lampiran">
+                            <i class="fa fa-file-alt px-1"></i>
                         </a>
                         @else
-                        -
+                        <span class="text-muted">-</span>
                         @endif
                     </td>
                     <td class="text-center">
-                        <div class="d-flex gap-1 justify-content-center">
-                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalEditPengaduan{{ $p->id }}" title="Edit Kasus">
-                                <i class="fa fa-edit"></i>
+                        <div class="btn-group shadow-sm border">
+                            <button type="button" class="btn btn-white btn-sm" data-bs-toggle="modal" data-bs-target="#modalEditPengaduan{{ $p->id }}" title="Edit Kasus">
+                                <i class="fa fa-pencil text-primary"></i>
                             </button>
                             <form action="{{ route('phi.destroy.pengaduan', $p->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus data kasus ini?')">
                                 @csrf

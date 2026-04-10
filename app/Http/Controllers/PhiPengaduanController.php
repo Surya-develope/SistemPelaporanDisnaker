@@ -37,25 +37,7 @@ class PhiPengaduanController extends Controller
             $query->where('tahun', $request->tahun);
         if ($request->filled('status_kasus'))
             $query->where('status_kasus', $request->status_kasus);
-        $data = $query->get();
-
-        $exportData = [];
-        $no = 1;
-        foreach ($data as $row) {
-            $exportData[] = [
-                $no++, 
-                $row->nomor_agenda ?? '-',
-                $row->tanggal_diterima ? \Carbon\Carbon::parse($row->tanggal_diterima)->format('d/m/Y') : '-',
-                $row->nama_perusahaan,
-                $row->sektor ?? '-',
-                $row->nama_pekerja ?? '-',
-                $row->jml_org ?? 0,
-                $row->jenis_perselisihan ?? '-',
-                $row->mediator ?? '-',
-                $row->metode_penyelesaian ?? '-',
-                $row->tanggal_diselesaikan ? \Carbon\Carbon::parse($row->tanggal_diselesaikan)->format('d/m/Y') : '-'
-            ];
-        }
+        $allData = $query->get();
 
         $headings = [
             'NO', 
@@ -70,7 +52,43 @@ class PhiPengaduanController extends Controller
             'PENYELESAIAN KASUS', 
             'TANGGAL KASUS DISELESAIKAN'
         ];
-        return Excel::download(new GenericDataExport($exportData, $headings), 'laporan_pengaduan_kasus_phi.xlsx');
+
+        // Group data by Bulan and Tahun
+        $groupedData = $allData->groupBy(function($item) {
+            $namaBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            $blnStr = ($item->bulan && $item->bulan >= 1 && $item->bulan <= 12) ? $namaBulan[$item->bulan - 1] : 'Unknown';
+            $thnStr = $item->tahun ?? 'Unknown';
+            return $blnStr . ' ' . $thnStr;
+        });
+
+        $sheets = [];
+        foreach ($groupedData as $sheetName => $dataChunk) {
+            $exportData = [];
+            $no = 1;
+            foreach ($dataChunk as $row) {
+                $exportData[] = [
+                    $no++, 
+                    $row->nomor_agenda ?? '-',
+                    $row->tanggal_diterima ? \Carbon\Carbon::parse($row->tanggal_diterima)->format('d/m/Y') : '-',
+                    $row->nama_perusahaan,
+                    $row->sektor ?? '-',
+                    $row->nama_pekerja ?? '-',
+                    $row->jml_org ?? 0,
+                    $row->jenis_perselisihan ?? '-',
+                    $row->mediator ?? '-',
+                    $row->metode_penyelesaian ?? '-',
+                    $row->tanggal_diselesaikan ? \Carbon\Carbon::parse($row->tanggal_diselesaikan)->format('d/m/Y') : '-'
+                ];
+            }
+            $sheets[] = new GenericDataExport($exportData, $headings, substr($sheetName, 0, 31));
+        }
+
+        if (count($sheets) === 0) {
+            $sheets[] = new GenericDataExport([], $headings, 'Data Kosong');
+        }
+
+        $filename = 'laporan_pengaduan_kasus_phi_' . date('YmdHis') . '.xlsx';
+        return Excel::download(new \App\Exports\GenericMultiSheetExport($sheets), $filename);
     }
 
     public function store(Request $request)
@@ -202,6 +220,7 @@ class PhiPengaduanController extends Controller
     {
         $ids = json_decode($request->ids, true);
         if (is_array($ids)) {
+            /** @var \App\Models\PhiReport[] $pengaduans */
             $pengaduans = PhiReport::whereIn('id', $ids)->get();
             foreach ($pengaduans as $pengaduan) {
                 if ($pengaduan->file_path && Storage::disk('public')->exists($pengaduan->file_path)) {

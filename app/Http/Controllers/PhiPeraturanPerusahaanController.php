@@ -134,32 +134,7 @@ class PhiPeraturanPerusahaanController extends Controller
             $query->where('tahun', $request->tahun);
         }
 
-        $data = $query->get();
-
-        $exportData = [];
-        $no = 1;
-
-        foreach ($data as $p) {
-            $masa_berlaku_awal = $p->masa_berlaku_awal ?Carbon::parse($p->masa_berlaku_awal)->format('d-m-Y') : '-';
-            $masa_berlaku_akhir = $p->masa_berlaku_akhir ?Carbon::parse($p->masa_berlaku_akhir)->format('d-m-Y') : '-';
-            $periode = $masa_berlaku_awal . ' s/d ' . $masa_berlaku_akhir;
-
-            $exportData[] = [
-                $no++,
-                $p->bulan,
-                $p->tahun,
-                $p->nama_perusahaan,
-                $p->sektor_usaha,
-                $p->pekerja_lk,
-                $p->pekerja_pr,
-                $p->total_pekerja,
-                $p->status_pp,
-                $p->no_sk,
-                $p->pp_ke,
-                $periode,
-                $p->keterangan
-            ];
-        }
+        $allData = $query->get();
 
         $headings = [
             'No', 'Bulan Pencatatan', 'Tahun Pencatatan', 'Nama Perusahaan', 'Sektor Usaha',
@@ -167,7 +142,48 @@ class PhiPeraturanPerusahaanController extends Controller
             'Status PP', 'No SK PP', 'PP Ke', 'Masa Berlaku', 'Keterangan Tambahan'
         ];
 
-        return Excel::download(new GenericDataExport($exportData, $headings), 'Laporan_Peraturan_Perusahaan.xlsx');
+        // Group data by Bulan and Tahun
+        $groupedData = $allData->groupBy(function($item) {
+            $namaBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            $blnStr = ($item->bulan && $item->bulan >= 1 && $item->bulan <= 12) ? $namaBulan[$item->bulan - 1] : 'Unknown';
+            $thnStr = $item->tahun ?? 'Unknown';
+            return $blnStr . ' ' . $thnStr;
+        });
+
+        $sheets = [];
+        foreach ($groupedData as $sheetName => $dataChunk) {
+            $exportData = [];
+            $no = 1;
+            foreach ($dataChunk as $p) {
+                $masa_berlaku_awal = $p->masa_berlaku_awal ? Carbon::parse($p->masa_berlaku_awal)->format('d-m-Y') : '-';
+                $masa_berlaku_akhir = $p->masa_berlaku_akhir ? Carbon::parse($p->masa_berlaku_akhir)->format('d-m-Y') : '-';
+                $periode = $masa_berlaku_awal . ' s/d ' . $masa_berlaku_akhir;
+
+                $exportData[] = [
+                    $no++,
+                    $p->bulan,
+                    $p->tahun,
+                    $p->nama_perusahaan,
+                    $p->sektor_usaha,
+                    $p->pekerja_lk,
+                    $p->pekerja_pr,
+                    $p->total_pekerja,
+                    $p->status_pp,
+                    $p->no_sk,
+                    $p->pp_ke,
+                    $periode,
+                    $p->keterangan
+                ];
+            }
+            $sheets[] = new GenericDataExport($exportData, $headings, substr($sheetName, 0, 31));
+        }
+
+        if (count($sheets) === 0) {
+            $sheets[] = new GenericDataExport([], $headings, 'Data Kosong');
+        }
+
+        $filename = 'Laporan_Peraturan_Perusahaan_' . date('YmdHis') . '.xlsx';
+        return Excel::download(new \App\Exports\GenericMultiSheetExport($sheets), $filename);
     }
 
     public function bulkDelete(Request $request)
